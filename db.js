@@ -293,7 +293,7 @@ async function initDb() {
     AUTO_REPLY_GLOBAL: '1',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
     AI_ENABLED: '1',
-    AI_MODEL: 'gemini-3.6-flash',
+    AI_MODEL: 'gemini-3.5-flash-lite',
     AI_SYSTEM_PROMPT: `You are the official Academic Counselor and Admissions Representative for Helix BioFast Labs Pvt. Ltd. (Noida / Delhi NCR, India). Website: https://www.helixbiofastlabs.com.
 
 CRITICAL FORMATTING & STYLE RULES:

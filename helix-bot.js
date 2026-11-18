@@ -713,61 +713,45 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
       contents: contents,
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 2048,
-        thinkingConfig: { thinkingBudget: 0 }
+        maxOutputTokens: 2048
       }
     };
 
-    await throttleGeminiCall();
+    const candidateModels = [
+      modelName,
+      'gemini-3.5-flash-lite',
+      'gemini-flash-lite-latest',
+      'gemini-3.6-flash'
+    ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
-    console.log(`🤖 [GEMINI AI] Sending context (${contents.length} turns) to ${modelName}...`);
+    for (const currentModel of candidateModels) {
+      try {
+        await throttleGeminiCall();
+        console.log(`🤖 [GEMINI AI] Sending context (${contents.length} turns) to ${currentModel}...`);
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(20000)
+        });
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(15000)
-    });
-
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      console.error(`❌ Gemini API Error (${res.status}) on ${modelName}:`, errData.error?.message || errData);
-
-      // Active fallback model trials (gemini-3.6-flash, gemini-3.5-flash-lite)
-      const fallbacks = ['gemini-3.6-flash', 'gemini-3.5-flash-lite'].filter(m => m !== modelName);
-      for (const fbModel of fallbacks) {
-        try {
-          console.log(`🔄 Attempting fallback with ${fbModel}...`);
-          const fbPayload = { ...payload };
-          await throttleGeminiCall();
-          const fbRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${fbModel}:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(fbPayload),
-            signal: AbortSignal.timeout(15000)
-          });
-          if (fbRes.ok) {
-            const fbData = await fbRes.json();
-            let fbReply = fbData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
-            if (fbReply) {
-              fbReply = fbReply.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
-              console.log(`✅ Fallback ${fbModel} succeeded.`);
-              return fbReply;
-            }
+        if (res.ok) {
+          const data = await res.json();
+          let reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+          if (reply) {
+            reply = reply.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
+            console.log(`✅ Gemini reply received from ${currentModel}`);
+            return reply;
           }
-        } catch (fbErr) {
-          console.warn(`Fallback ${fbModel} error:`, fbErr.message);
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          console.warn(`❌ Gemini API (${res.status}) on ${currentModel}:`, errData.error?.message || errData);
         }
+      } catch (callErr) {
+        console.warn(`Gemini API call on ${currentModel} error:`, callErr.message);
       }
-      return null;
     }
-
-    const data = await res.json();
-    let reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (reply) {
-      reply = reply.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
-    }
-    return reply || null;
+    return null;
   } catch (err) {
     console.error('❌ Error in generateGeminiReply:', err.message);
     return null;
@@ -2046,7 +2030,7 @@ app.post('/api/test-ai', async (req, res) => {
     const { apiKey, model, systemPrompt, testMessage } = req.body;
     const currentConfig = await db.getBotConfig();
     const keyToUse = apiKey || currentConfig.GEMINI_API_KEY;
-    const modelToUse = model || currentConfig.AI_MODEL || 'gemini-3.6-flash';
+    const modelToUse = model || currentConfig.AI_MODEL || 'gemini-3.5-flash-lite';
     const promptToUse = systemPrompt || currentConfig.AI_SYSTEM_PROMPT || 'You are the official Academic Counselor for Helix BioFast Labs Pvt. Ltd.';
     const userMsg = testMessage || 'Hello, what courses do you offer for 15 days?';
 
@@ -2057,26 +2041,45 @@ app.post('/api/test-ai', async (req, res) => {
     const payload = {
       system_instruction: { parts: [{ text: promptToUse }] },
       contents: [{ role: 'user', parts: [{ text: userMsg }] }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } }
+      generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
     };
 
-    const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${keyToUse}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(15000)
-    });
+    const modelsToTry = [
+      modelToUse,
+      'gemini-3.5-flash-lite',
+      'gemini-flash-lite-latest'
+    ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
-    const data = await apiRes.json();
-    if (!apiRes.ok) {
-      return res.status(apiRes.status).json({ success: false, error: data.error?.message || 'Gemini API request failed' });
+    let lastError = null;
+    for (const currentModel of modelsToTry) {
+      try {
+        console.log(`Testing Gemini API with model: ${currentModel}...`);
+        const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${keyToUse}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(20000)
+        });
+
+        const data = await apiRes.json().catch(() => ({}));
+        if (!apiRes.ok) {
+          lastError = data.error?.message || `Model ${currentModel} returned status ${apiRes.status}`;
+          console.warn(`Model ${currentModel} error:`, lastError);
+          continue;
+        }
+
+        let reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (reply) {
+          reply = reply.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
+          return res.json({ success: true, reply, model: currentModel });
+        }
+      } catch (err) {
+        lastError = err.message;
+        console.warn(`Model ${currentModel} failed:`, err.message);
+      }
     }
 
-    let reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (reply) {
-      reply = reply.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
-    }
-    res.json({ success: true, reply, model: modelToUse });
+    res.status(500).json({ success: false, error: lastError || 'Gemini API request failed' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
