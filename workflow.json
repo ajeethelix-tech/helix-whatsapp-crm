@@ -1,0 +1,228 @@
+﻿{
+  "name": "Helix BioFast Labs WhatsApp Bot (Free - No Green API)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "helix-whatsapp-bot",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "11111111-1111-1111-1111-000000000001",
+      "name": "Incoming WhatsApp Message",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "helix-biofast-webhook-001"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"typeWebhook\"] }}",
+              "operation": "equal",
+              "value2": "incomingMessageReceived"
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "11111111-1111-1111-1111-000000000002",
+      "name": "Is Text Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// PASTE THE FULL CONTENT OF intent_detection.js HERE\n// File: helix-whatsapp-bot/intent_detection.js\n// Select All in Notepad > Copy > Paste here\n\nreturn [{ json: { chatId: '', senderName: '', rawMessage: '', intent: 'unknown', reply: 'placeholder', messageType: 'text', timestamp: new Date().toISOString() } }];"
+      },
+      "id": "11111111-1111-1111-1111-000000000003",
+      "name": "Build Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json[\"messageType\"] }}",
+        "rules": {
+          "rules": [
+            { "value2": "text",  "output": 0 },
+            { "value2": "file",  "output": 1 },
+            { "value2": "human", "output": 2 }
+          ]
+        },
+        "fallbackOutput": 0
+      },
+      "id": "11111111-1111-1111-1111-000000000004",
+      "name": "Message Type?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ chatId: $json.chatId, message: $json.reply }) }}",
+        "options": {}
+      },
+      "id": "11111111-1111-1111-1111-000000000005",
+      "name": "Send Text Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/send-file",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ chatId: $json.chatId, urlFile: $env.BROCHURE_URL, fileName: 'Helix_BioFast_Labs_Brochure.pdf', caption: 'Helix BioFast Labs - Complete Training Brochure\\n\\nType 1 for courses or 7 to talk to our team.' }) }}",
+        "options": {}
+      },
+      "id": "11111111-1111-1111-1111-000000000006",
+      "name": "Send Brochure File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ chatId: $json.chatId, message: $json.reply }) }}",
+        "options": {}
+      },
+      "id": "11111111-1111-1111-1111-000000000007",
+      "name": "Send Human Handover Msg",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 420]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ chatId: $env.ADMIN_WHATSAPP_CHAT_ID, message: 'STUDENT ENQUIRY - REPLY NEEDED\\n\\nName: ' + $json.senderName + '\\nPhone: ' + $json.chatId + '\\nMessage: ' + $json.rawMessage + '\\nTime: ' + $json.timestamp }) }}",
+        "options": {}
+      },
+      "id": "11111111-1111-1111-1111-000000000008",
+      "name": "Alert Admin",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 420]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "__rl": true,
+          "mode": "id"
+        },
+        "sheetName": {
+          "value": "Conversation Log",
+          "__rl": true,
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp":  "={{ $json[\"timestamp\"] }}",
+            "ChatId":     "={{ $json[\"chatId\"] }}",
+            "Name":       "={{ $json[\"senderName\"] }}",
+            "Message":    "={{ $json[\"rawMessage\"] }}",
+            "Intent":     "={{ $json[\"intent\"] }}",
+            "ReplyType":  "={{ $json[\"messageType\"] }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "11111111-1111-1111-1111-000000000009",
+      "name": "Log to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.2,
+      "position": [900, 480]
+    }
+  ],
+  "connections": {
+    "Incoming WhatsApp Message": {
+      "main": [
+        [ { "node": "Is Text Message?", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Is Text Message?": {
+      "main": [
+        [ { "node": "Build Reply", "type": "main", "index": 0 } ],
+        []
+      ]
+    },
+    "Build Reply": {
+      "main": [
+        [
+          { "node": "Message Type?",  "type": "main", "index": 0 },
+          { "node": "Log to Sheets", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Message Type?": {
+      "main": [
+        [ { "node": "Send Text Reply",         "type": "main", "index": 0 } ],
+        [ { "node": "Send Brochure File",      "type": "main", "index": 0 } ],
+        [ { "node": "Send Human Handover Msg", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Send Human Handover Msg": {
+      "main": [
+        [ { "node": "Alert Admin", "type": "main", "index": 0 } ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "2.0.0",
+  "meta": {
+    "description": "Helix BioFast Labs WhatsApp Bot v2 - Uses whatsapp-web.js, no Green API, 100% free unlimited chats"
+  },
+  "pinData": {},
+  "tags": []
+}

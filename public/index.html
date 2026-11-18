@@ -1,0 +1,2495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helix BioFast Labs — WhatsApp CRM Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css?v=4.0">
+</head>
+<body>
+  <div class="crm-app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fa-solid fa-dna logo-icon"></i>
+          <div>
+            <h2>Helix BioFast</h2>
+            <span class="sub-text">WhatsApp CRM v3.0</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="#dashboard" class="menu-item active" data-tab="dashboard">
+          <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <a href="#leads" class="menu-item" data-tab="leads">
+          <i class="fa-solid fa-user-group"></i> Leads Pipeline
+        </a>
+        <a href="#inbox" class="menu-item" data-tab="inbox">
+          <i class="fa-solid fa-comments"></i> Live Chat Inbox
+          <span class="badge" id="unreadBadge" style="display:none;">0</span>
+        </a>
+        <a href="#drip" class="menu-item" data-tab="drip">
+          <i class="fa-solid fa-paper-plane"></i> Drip Campaigns
+        </a>
+        <a href="#campaigns" class="menu-item" data-tab="campaigns">
+          <i class="fa-solid fa-bullhorn"></i> Custom Campaigns
+        </a>
+        <a href="#institutions" class="menu-item" data-tab="institutions">
+          <i class="fa-solid fa-building-columns"></i> Institutional & Workshops
+        </a>
+        <a href="#faculties" class="menu-item" data-tab="faculties">
+          <i class="fa-solid fa-chalkboard-user"></i> Faculty Directory
+        </a>
+        <a href="#contacts" class="menu-item" data-tab="contacts">
+          <i class="fa-solid fa-address-book"></i> WhatsApp Contacts
+        </a>
+        <a href="#settings" class="menu-item" data-tab="settings">
+          <i class="fa-solid fa-gear"></i> Bot Settings & QR
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection-status-card" id="connectionStatusCard">
+          <div class="status-indicator offline" id="statusDot"></div>
+          <div>
+            <div class="status-title" id="statusText">Checking WhatsApp...</div>
+            <div class="status-sub" id="statusSub">Connecting server</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Navbar -->
+      <header class="navbar">
+        <div class="page-title">
+          <h1 id="currentPageTitle">Dashboard Overview</h1>
+        </div>
+        <div class="navbar-actions">
+          <button type="button" class="btn btn-danger" id="btnNavbarStopBroadcast" style="display:none; background:#DC2626; color:#fff; font-weight:700; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(220,38,38,0.35);">
+            <i class="fa-solid fa-octagon-xmark"></i> Stop Running Broadcast
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnNavbarNetworkLink" title="Click to copy link to open on other computers on your Wi-Fi" style="background:#F0FDF4; border:1px solid #86EFAC; color:#166534; font-weight:600; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+            <i class="fa-solid fa-wifi" style="color:#16A34A;"></i> <span id="navbarNetworkText">Network: http://...</span>
+          </button>
+          <button class="btn btn-secondary" id="btnExportLeads">
+            <i class="fa-solid fa-download"></i> Export CSV
+          </button>
+          <button class="btn btn-primary" id="btnRefresh">
+            <i class="fa-solid fa-rotate"></i> Refresh Data
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: DASHBOARD OVERVIEW -->
+      <section class="tab-content active" id="tab-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-info">
+              <h3>Total Leads</h3>
+              <p class="stat-value" id="statTotalLeads">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-user-plus"></i></div>
+            <div class="stat-info">
+              <h3>New Leads</h3>
+              <p class="stat-value" id="statNewLeads">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-amber"><i class="fa-solid fa-spinner"></i></div>
+            <div class="stat-info">
+              <h3>In Progress</h3>
+              <p class="stat-value" id="statInProgress">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="stat-info">
+              <h3>Enrolled</h3>
+              <p class="stat-value" id="statEnrolled">0</p>
+            </div>
+          </div>
+          <div class="stat-card clickable" id="cardTalkToTeam" onclick="openTalkToTeamModal()" title="Click to view & call all students who opted for Option 6 (Talk to Our Team)">
+            <div class="stat-icon bg-rose"><i class="fa-solid fa-phone-volume"></i></div>
+            <div class="stat-info">
+              <h3 style="color:#BE123C; font-weight:700;">Talk to Team (Opt 6)</h3>
+              <div style="display:flex; align-items:baseline; justify-content:space-between;">
+                <p class="stat-value" id="statTalkToTeam" style="color:#E11D48;">0</p>
+                <span style="font-size:10px; color:#E11D48; font-weight:700; text-decoration:underline;">View & Call &rarr;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Recent Activity / Breakdown -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-layer-group"></i> Leads by Course Category</h3>
+            </div>
+            <div class="card-body">
+              <div id="categoryBreakdownList" class="breakdown-list">
+                <p class="empty-state">No category metrics available yet.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick QR Widget -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-qrcode"></i> WhatsApp Connection Manager</h3>
+            </div>
+            <div class="card-body text-center">
+              <div id="qrWidgetContainer">
+                <div class="qr-placeholder">
+                  <i class="fa-solid fa-circle-notch fa-spin"></i>
+                  <p>Loading WhatsApp status...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          
+        </div>
+
+        <!-- Option 6 Callbacks Section on Dashboard -->
+        <div class="card margin-top" style="border-top: 3px solid #E11D48;">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:36px; height:36px; border-radius:8px; background:#FFE4E6; color:#E11D48; display:flex; align-items:center; justify-content:center; font-size:16px;">
+                <i class="fa-solid fa-phone-volume"></i>
+              </div>
+              <div>
+                <h3 style="margin:0; font-size:15px; font-weight:700; color:#1e293b;">Option 6: Students Requesting Direct Team Call</h3>
+                <span style="font-size:12px; color:#64748b;">Direct telephonic call list of students who chose "Talk to Our Team" on WhatsApp</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="exportTalkToTeamToExcel()">
+                <i class="fa-solid fa-file-excel" style="color:#107C41;"></i> Export to Excel
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="openTalkToTeamModal()" style="background:#E11D48; border-color:#E11D48;">
+                <i class="fa-solid fa-up-right-from-square"></i> Open Full Call Directory (<span id="dashTalkToTeamCount">0</span>)
+              </button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-container" style="max-height:340px; overflow-y:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>WhatsApp Phone</th>
+                    <th>Requested Time</th>
+                    <th>Course Category</th>
+                    <th>Status</th>
+                    <th>Discussion Notes</th>
+                    <th style="text-align:center;">Direct Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dashTalkToTeamTableBody">
+                  <tr>
+                    <td colspan="7" class="text-center" style="padding:24px; color:#94A3B8;">Loading callback requests...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: LEADS PIPELINE -->
+      <section class="tab-content" id="tab-leads">
+        <div class="toolbar">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="leadSearchInput" placeholder="Search by name, phone, or notes...">
+          </div>
+          <div class="filter-box">
+            <select id="leadStatusFilter">
+              <option value="All">All Statuses</option>
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Enrolled">Enrolled</option>
+              <option value="Lost">Lost</option>
+            </select>
+
+            <select id="leadCategoryFilter">
+              <option value="All">All Categories</option>
+              <option value="Short Term (7D)">Short Term (7D)</option>
+              <option value="Advance (15D)">Advance (15D)</option>
+              <option value="Industrial (30D)">Industrial (30D)</option>
+              <option value="Job-Oriented">Job-Oriented</option>
+              <option value="Project/Dissertation">Project/Dissertation</option>
+              <option value="PhD Assistance">PhD Assistance</option>
+              <option value="Forensic Services">Forensic Services</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card margin-top">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Lead Name</th>
+                  <th>WhatsApp Number</th>
+                  <th>Program Category</th>
+                  <th>Qualification</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leadsTableBody">
+                <tr>
+                  <td colspan="7" class="text-center">Loading leads...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: LIVE CHAT INBOX -->
+      <section class="tab-content" id="tab-inbox">
+        <div class="chat-desk">
+          <!-- Chat Threads Sidebar -->
+          <div class="chat-list-panel">
+            <div class="chat-search" style="display:flex; gap:8px; align-items:center;">
+              <div style="position:relative; flex:1;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="chatSearchInput" placeholder="Search chats or phone contacts...">
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="btnOpenNewChatModal" title="Start New Chat from 3,100+ Contacts" style="padding: 7px 11px; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;">
+                <i class="fa-solid fa-plus"></i> New Chat
+              </button>
+            </div>
+            <div class="chat-time-filters" id="chatTimeFilters">
+              <button type="button" class="chat-filter-pill active" data-filter="all" id="btnFilterAll">
+                All <span class="filter-count" id="countChatsAll">0</span>
+              </button>
+              <button type="button" class="chat-filter-pill" data-filter="24h" id="btnFilter24h" title="Inquiries received or active in the last 24 hours">
+                <i class="fa-regular fa-clock"></i> 24h <span class="filter-count" id="countChats24h">0</span>
+              </button>
+              <button type="button" class="chat-filter-pill" data-filter="48h" id="btnFilter48h" title="Inquiries received or active in the last 48 hours">
+                <i class="fa-regular fa-clock"></i> 48h <span class="filter-count" id="countChats48h">0</span>
+              </button>
+              <button type="button" class="chat-filter-pill" data-filter="fresh" id="btnFilterFresh" title="Fresh brand new inquiries started in last 24h">
+                <i class="fa-solid fa-sparkles" style="color:#F59E0B;"></i> Fresh <span class="filter-count" id="countChatsFresh">0</span>
+              </button>
+              <button type="button" class="chat-filter-pill" data-filter="unread" id="btnFilterUnread" title="Chats with unread incoming messages">
+                Unread <span class="filter-count" id="countChatsUnread">0</span>
+              </button>
+            </div>
+
+            <!-- Inquiry Activity vs Fresh Started Subfilter Bar -->
+            <div class="chat-inquiry-subfilter" id="chatInquirySubfilter">
+              <span class="subfilter-label">Mode:</span>
+              <button type="button" class="subfilter-btn active" data-type="all" id="btnSubfilterAll" title="All ongoing and new chats in this timeframe">
+                All Activity (<span id="countSubfilterAll">0</span>)
+              </button>
+              <button type="button" class="subfilter-btn" data-type="fresh" id="btnSubfilterFresh" title="Show only brand new inquiries that started in this timeframe">
+                <i class="fa-solid fa-sparkles"></i> Fresh Started (<span id="countSubfilterFresh">0</span>)
+              </button>
+            </div>
+            <div class="chat-threads-list" id="chatThreadsList">
+              <p class="empty-state">Loading chats...</p>
+            </div>
+          </div>
+
+          <!-- Chat Window -->
+          <div class="chat-window-panel">
+            <div id="noChatSelected" class="chat-empty-view">
+              <i class="fa-brands fa-whatsapp whatsapp-icon"></i>
+              <h3>Helix BioFast Live Chat Desk</h3>
+              <p>Select a candidate from the left thread list to view conversation and reply directly.</p>
+            </div>
+
+            <div id="chatActiveView" class="chat-active-view" style="display:none;">
+              <!-- Header -->
+              <div class="chat-header">
+                <div class="chat-user-info">
+                  <div class="avatar" id="chatAvatar">HB</div>
+                  <div>
+                    <h3 id="chatHeaderName">Student Name</h3>
+                    <div class="phone-wrapper">
+                      <span class="sub-text" id="chatHeaderPhone">+91XXXXXXXXXX</span>
+                      <button class="btn-icon-sm" id="btnEditChatPhone" title="Save/Edit real contact number">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                    </div>
+                    <span class="chat-header-time" id="chatHeaderTime" style="font-size:11px; color:#6B7280; display:block; margin-top:2px;"></span>
+                  </div>
+                </div>
+
+                <div class="chat-header-actions" style="display:flex; align-items:center; gap:12px;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnSendChatBrochure" title="Send official Information Brochure PDF to this student">
+                    <i class="fa-solid fa-file-pdf" style="color:#EF4444;"></i> Send Brochure
+                  </button>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="toggleAutoReply">
+                    <span class="slider"></span>
+                  </label>
+                  <span class="toggle-label" id="autoReplyLabel">Auto-Reply Bot</span>
+                </div>
+              </div>
+
+              <!-- Message Stream -->
+              <div class="chat-messages-body" id="chatMessagesBody">
+                <!-- Messages render here -->
+              </div>
+
+              <!-- Message Composer -->
+              <div class="chat-composer-wrap">
+                <!-- Attachment Preview Chip (shown when file is selected) -->
+                <div id="chatAttachmentPreview" class="chat-attachment-preview" style="display:none;">
+                  <div class="attachment-info">
+                    <i class="fa-solid fa-paperclip attachment-icon"></i>
+                    <span id="chatAttachmentName" class="attachment-name">attachment.pdf</span>
+                    <span id="chatAttachmentSize" class="attachment-size">0 KB</span>
+                  </div>
+                  <button type="button" id="btnRemoveChatAttachment" class="btn-remove-attachment" title="Remove attachment">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <div class="chat-composer">
+                  <input type="file" id="chatFileInput" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.txt" style="display:none;">
+                  <button type="button" class="btn-attach" id="btnAttachChatFile" title="Attach Document or Image (PDF, JPG, PNG, DOC up to 25MB)">
+                    <i class="fa-solid fa-paperclip"></i>
+                  </button>
+                  <textarea id="chatInput" placeholder="Type message to send via WhatsApp..." rows="2"></textarea>
+                  <button class="btn btn-primary" id="btnSendMessage">
+                    <i class="fa-solid fa-paper-plane"></i> Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          
+        </div>
+      </section>
+
+      <!-- TAB 4: DRIP CAMPAIGNS -->
+      <section class="tab-content" id="tab-drip">
+        <!-- Drip Overview Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="stat-info">
+              <h3>Active in Drip</h3>
+              <p class="stat-value" id="dripStatActive">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="stat-info">
+              <h3>Sent Today</h3>
+              <p class="stat-value" id="dripStatToday">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="stat-info">
+              <h3>Total Drip Sent</h3>
+              <p class="stat-value" id="dripStatTotal">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-amber"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-info">
+              <h3>Converted / Enrolled</h3>
+              <p class="stat-value" id="dripStatCompleted">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop All Drip Warning Banner -->
+        <div id="dripStoppedWarningBanner" style="display:none; background:#FEF2F2; border:1px solid #F87171; color:#991B1B; padding:12px 18px; border-radius:8px; margin-top:16px; margin-bottom:4px; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; box-shadow:0 1px 4px rgba(239,68,68,0.15);">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:22px; color:#DC2626;"></i>
+            <div>
+              <strong style="font-size:14px; color:#991B1B;">All Drip Campaigns are Currently STOPPED!</strong>
+              <p style="margin:2px 0 0 0; font-size:12px; color:#B91C1C;">Automated 6-day follow-up messages are paused. No student in the queue will receive automated messages.</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-success btn-sm" id="btnBannerResumeDrip" style="background:#16A34A; border-color:#16A34A; color:#fff; font-weight:700; padding:6px 14px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-play"></i> Resume All Drip Campaigns
+          </button>
+        </div>
+
+        <!-- Drip Navigation & Action Header -->
+        <div class="card margin-top">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div class="drip-subnav">
+              <button class="btn-subnav active" id="btnSubtabQueue" data-subtab="queue">
+                <i class="fa-solid fa-list-check"></i> Active Queue
+              </button>
+              <button class="btn-subnav" id="btnSubtabLabVisits" data-subtab="labvisits">
+                <i class="fa-solid fa-vial-virus" style="color: #059669;"></i> Lab Visited Students
+                <span class="badge" id="badgeLabVisitCount" style="margin-left: 6px; background: #059669; color: white;">0</span>
+              </button>
+              <button class="btn-subnav" id="btnSubtabCallInquiries" data-subtab="callinquiries">
+                <i class="fa-solid fa-phone-volume" style="color: #0284c7;"></i> Call Inquiry Students
+                <span class="badge" id="badgeCallInquiryCount" style="margin-left: 6px; background: #0284c7; color: white;">0</span>
+              </button>
+              <button class="btn-subnav" id="btnSubtabLogs" data-subtab="logs">
+                <i class="fa-solid fa-clock-rotate-left"></i> Sent Messages Log
+              </button>
+              <button class="btn-subnav" id="btnSubtabTemplates" data-subtab="templates">
+                <i class="fa-solid fa-pen-ruler"></i> Sequence Templates
+              </button>
+              <button class="btn-subnav" id="btnSubtabStopDrip" data-subtab="stopdrip" style="color: #DC2626; font-weight: 700;">
+                <i class="fa-solid fa-power-off" style="color: #DC2626;"></i> Stop / Master Control
+              </button>
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <button type="button" class="btn btn-danger btn-sm" id="btnHeaderStopAllDrip" title="Stop or Resume all automated drip follow-up campaigns" style="background:#DC2626; border-color:#DC2626; color:#fff; font-weight:700; padding:7px 14px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 3px rgba(220,38,38,0.25);">
+                <i class="fa-solid fa-circle-stop"></i> Stop All Drip Campaigns
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnOpenDripExcelModal" title="Import students directly from Excel sheet into Drip Campaign" style="background:#f0fdf4; color:#166534; border:1px solid #86efac; font-weight:600; padding:7px 13px; display:inline-flex; align-items:center; gap:7px;">
+                <i class="fa-solid fa-file-excel" style="color: #16a34a; font-size: 15px;"></i> Import from Excel
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnExportLabVisitsExcelTop" title="Export Lab Visited Students directly to Excel (.xlsx)" style="background:#fff; color:#107C41; border:1px solid #107C41; font-weight:600; padding:7px 12px; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-file-excel"></i> Export Lab Visits Excel
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnExportCallInquiriesExcelTop" title="Export Call Inquiry Students directly to Excel (.xlsx)" style="background:#fff; color:#0284c7; border:1px solid #0284c7; font-weight:600; padding:7px 12px; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-file-excel"></i> Export Call Inquiries Excel
+              </button>
+              <button class="btn btn-primary" id="btnOpenAddCallInquiry" style="background:#0284c7; border-color:#0284c7; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-phone-volume"></i> Add Call Inquiry Student
+              </button>
+              <button class="btn btn-primary" id="btnOpenAddLabVisit" style="display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-user-plus"></i> Add Lab Visit Student
+              </button>
+            </div>
+          </div>
+
+          <!-- SUBTAB 1: ACTIVE DRIP QUEUE -->
+          <div class="card-body" id="viewDripQueue">
+            <div class="toolbar" style="margin-bottom: 16px;">
+              <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="dripQueueSearchInput" placeholder="Search drip queue by student name or phone...">
+              </div>
+              <div class="filter-box">
+                <select id="dripQueueStatusFilter">
+                  <option value="All">All Statuses (Active, Paused, Enrolled)</option>
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="enrolled">Enrolled (Halted)</option>
+                  <option value="completed">Completed (Day 6 Done)</option>
+                  <option value="deleted">Deleted / Opted Out</option>
+                </select>
+                <select id="dripQueueCampaignFilter">
+                  <option value="All">All Campaigns</option>
+                  <option value="inquiry">WhatsApp Inquiry</option>
+                  <option value="call_inquiry">Telephonic / Call Inquiry</option>
+                  <option value="lab_visit">Lab Visit Walk-in</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>Phone</th>
+                    <th>Campaign</th>
+                    <th>Course / Notes</th>
+                    <th>Current Progress</th>
+                    <th>Next Scheduled Send</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dripSubscribersTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center">Loading drip queue...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUBTAB: LAB VISITED STUDENTS DIRECTORY -->
+          <div class="card-body" id="viewDripLabVisits" style="display:none;">
+            <div style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border: 1px solid #BBF7D0; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h4 style="margin: 0; color: #166534; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-vial-virus" style="color: #059669;"></i> Lab Visited Students Directory
+                  <span class="badge" id="badgeLabVisitTotal" style="background: #059669; color: #fff; font-size: 11px;">0 Students</span>
+                </h4>
+                <p style="margin: 4px 0 0 0; font-size: 12px; color: #15803D;">
+                  All direct walk-in candidates who visited Helix BioFast Labs. Export their contact numbers to Excel or launch custom campaigns.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadLabVisitsExcel" style="background: #fff; color: #107C41; border: 1px solid #107C41; font-weight: 600; display:inline-flex; align-items:center; gap:5px;">
+                  <i class="fa-solid fa-file-excel"></i> Download Excel (.xlsx)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadLabVisitsCsv" style="background: #fff; color: #475569; display:inline-flex; align-items:center; gap:5px;">
+                  <i class="fa-solid fa-file-csv"></i> Download CSV
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnLaunchLabVisitCampaign" style="font-weight: 600; display:inline-flex; align-items:center; gap:5px;">
+                  <i class="fa-solid fa-bullhorn"></i> Send Custom Campaign
+                </button>
+              </div>
+            </div>
+
+            <div class="toolbar" style="margin-bottom: 16px;">
+              <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="labVisitsSearchInput" placeholder="Search lab visited students by name, phone, course...">
+              </div>
+              <div class="filter-box">
+                <select id="labVisitsCourseFilter">
+                  <option value="All">All Courses / Interests</option>
+                  <option value="Industrial (30D)">Industrial (30D)</option>
+                  <option value="Job-Oriented">Job-Oriented</option>
+                  <option value="Project/Dissertation">Project/Dissertation</option>
+                  <option value="PhD Assistance">PhD Assistance</option>
+                  <option value="Forensic Services">Forensic Services</option>
+                </select>
+                <select id="labVisitsStatusFilter">
+                  <option value="All">All Drip Statuses</option>
+                  <option value="active">Active in Drip</option>
+                  <option value="completed">Completed Drip</option>
+                  <option value="enrolled">Enrolled / Converted</option>
+                  <option value="paused">Paused</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>Student Name</th>
+                    <th>WhatsApp Contact No.</th>
+                    <th>Course / Interest</th>
+                    <th>Lab Visit Date & Notes</th>
+                    <th>Drip Sequence Progress</th>
+                    <th>Lead Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="labVisitsTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center">Loading lab visited students...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUBTAB: CALL INQUIRY STUDENTS DIRECTORY -->
+          <div class="card-body" id="viewDripCallInquiries" style="display:none;">
+            <div style="background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border: 1px solid #BAE6FD; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h4 style="margin: 0; color: #0369A1; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-phone-volume" style="color: #0284c7;"></i> Telephonic / Call Inquiry Students Directory
+                  <span class="badge" id="badgeCallInquiryTotal" style="background: #0284c7; color: #fff; font-size: 11px;">0 Students</span>
+                </h4>
+                <p style="margin: 4px 0 0 0; font-size: 12px; color: #0284c7;">
+                  All candidates who inquired via phone call. Export their contact numbers to Excel or launch targeted custom campaigns.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadCallInquiriesExcel" style="background: #fff; color: #107C41; border: 1px solid #107C41; font-weight: 600; display:inline-flex; align-items:center; gap:5px;">
+                  <i class="fa-solid fa-file-excel"></i> Download Excel (.xlsx)
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadCallInquiriesCsv" style="background: #fff; color: #475569; display:inline-flex; align-items:center; gap:5px;">
+                  <i class="fa-solid fa-file-csv"></i> Download CSV
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnLaunchCallInquiryCampaign" style="background:#0284c7; border-color:#0284c7; font-weight: 600; display:inline-flex; align-items:center; gap:5px;">
+                  <i class="fa-solid fa-bullhorn"></i> Send Custom Campaign
+                </button>
+              </div>
+            </div>
+
+            <div class="toolbar" style="margin-bottom: 16px;">
+              <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="callInquiriesSearchInput" placeholder="Search call inquiry students by name, phone, course, notes...">
+              </div>
+              <div class="filter-box">
+                <select id="callInquiriesCourseFilter">
+                  <option value="All">All Courses / Interests</option>
+                  <option value="Short Term (7D)">Short Term (7D)</option>
+                  <option value="Advance (15D)">Advance (15D)</option>
+                  <option value="Industrial (30D)">Industrial (30D)</option>
+                  <option value="Job-Oriented">Job-Oriented</option>
+                  <option value="Project/Dissertation">Project/Dissertation</option>
+                  <option value="PhD Assistance">PhD Assistance</option>
+                  <option value="Forensic Services">Forensic Services</option>
+                </select>
+                <select id="callInquiriesStatusFilter">
+                  <option value="All">All Drip Statuses</option>
+                  <option value="active">Active in Drip</option>
+                  <option value="completed">Completed Drip</option>
+                  <option value="enrolled">Enrolled / Converted</option>
+                  <option value="paused">Paused</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>Student Name</th>
+                    <th>WhatsApp Contact No.</th>
+                    <th>Course Inquired</th>
+                    <th>Call Discussion Notes</th>
+                    <th>Drip Sequence Progress</th>
+                    <th>Lead Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="callInquiriesTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center">Loading call inquiry students...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUBTAB 2: SENT DRIP LOGS -->
+          <div class="card-body" id="viewDripLogs" style="display:none;">
+            <div class="toolbar" style="margin-bottom: 16px;">
+              <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="dripLogsSearchInput" placeholder="Search sent drip messages...">
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Time (IST)</th>
+                    <th>Student Name</th>
+                    <th>Phone</th>
+                    <th>Campaign</th>
+                    <th>Day / Step</th>
+                    <th>Message Content Preview</th>
+                    <th>Delivery Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dripLogsTableBody">
+                  <tr>
+                    <td colspan="7" class="text-center">Loading sent drip logs...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUBTAB 3: SEQUENCE TEMPLATES -->
+          <div class="card-body" id="viewDripTemplates" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+              <div class="template-campaign-switch">
+                <button class="btn btn-secondary btn-sm active-campaign-toggle" id="btnToggleTplInquiry">
+                  <i class="fa-brands fa-whatsapp"></i> WhatsApp Inquiry Sequence (Days 1–6)
+                </button>
+                <button class="btn btn-secondary btn-sm" id="btnToggleTplLabVisit">
+                  <i class="fa-solid fa-vial-virus"></i> Lab Visit Walk-in Sequence (Days 1–6)
+                </button>
+              </div>
+              <small style="color:var(--text-secondary);">
+                * Note: Bot messages strictly use clean professional format with no asterisks. Use <code>{name}</code> for student name.
+              </small>
+            </div>
+
+            <div class="templates-grid" id="dripTemplatesList">
+              <!-- Templates render here -->
+            </div>
+          </div>
+
+          <!-- SUBTAB: STOP / MASTER CONTROL DRIP CAMPAIGNS -->
+          <div class="card-body" id="viewDripStopControls" style="display:none;">
+            <!-- Current Status Hero Banner -->
+            <div id="dripControlStatusCard" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; border-radius: 12px; padding: 22px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <div id="dripControlStatusIcon" style="width: 50px; height: 50px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                  <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1E293B;">Drip Follow-Up System</h3>
+                    <span id="dripControlStatusBadge" class="badge" style="background: #16A34A; color: #fff; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: 700;">ACTIVE &amp; RUNNING</span>
+                  </div>
+                  <p id="dripControlStatusDesc" style="margin: 4px 0 0 0; font-size: 13px; color: #64748B;">
+                    Automated 6-day sequences are currently active. Scheduled messages are processed on time.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Quick Master Action Toggle inside Status Card -->
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-danger" id="btnPanelStopAllDrip" style="background: #DC2626; border: none; font-weight: 700; padding: 10px 20px; font-size: 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(220,38,38,0.3);">
+                  <i class="fa-solid fa-circle-stop"></i> Stop All Drip Campaigns
+                </button>
+                <button type="button" class="btn btn-success" id="btnPanelResumeAllDrip" style="display: none; background: #16A34A; border: none; font-weight: 700; padding: 10px 20px; font-size: 14px; border-radius: 8px; cursor: pointer; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(22,163,74,0.3);">
+                  <i class="fa-solid fa-play"></i> Resume All Drip Campaigns
+                </button>
+              </div>
+            </div>
+
+            <!-- Two Control Action Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-bottom: 22px;">
+              <!-- STOP CARD -->
+              <div style="background: #FFF; border: 1px solid #FECACA; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(239,68,68,0.08);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                  <span style="display: inline-flex; width: 36px; height: 36px; border-radius: 8px; background: #FEF2F2; color: #DC2626; align-items: center; justify-content: center; font-size: 18px;">
+                    <i class="fa-solid fa-ban"></i>
+                  </span>
+                  <div>
+                    <h4 style="margin: 0; color: #991B1B; font-size: 15px; font-weight: 700;">Stop All Campaigns</h4>
+                    <span style="font-size: 11px; color: #EF4444;">Pause 6-day follow-ups for all students</span>
+                  </div>
+                </div>
+                <p style="font-size: 13px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
+                  Pauses all active students in the 6-day queue across WhatsApp Inquiries, Call Inquiries, and Lab Visits. The automated drip engine is halted, preventing any messages from being sent.
+                </p>
+                <button type="button" class="btn btn-danger btn-sm" id="btnCardStopAll" style="width: 100%; background: #DC2626; border-color: #DC2626; font-weight: 700; padding: 9px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <i class="fa-solid fa-circle-stop"></i> Stop / Pause All Now
+                </button>
+              </div>
+
+              <!-- RESUME CARD -->
+              <div style="background: #FFF; border: 1px solid #BBF7D0; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(34,197,94,0.08);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                  <span style="display: inline-flex; width: 36px; height: 36px; border-radius: 8px; background: #F0FDF4; color: #16A34A; align-items: center; justify-content: center; font-size: 18px;">
+                    <i class="fa-solid fa-circle-play"></i>
+                  </span>
+                  <div>
+                    <h4 style="margin: 0; color: #166534; font-size: 15px; font-weight: 700;">Resume All Campaigns</h4>
+                    <span style="font-size: 11px; color: #16A34A;">Reactivate paused sequences safely</span>
+                  </div>
+                </div>
+                <p style="font-size: 13px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
+                  Re-enables the automated drip engine and restores paused subscribers back to active status. Their next follow-up message will be scheduled safely to avoid message bursts.
+                </p>
+                <button type="button" class="btn btn-success btn-sm" id="btnCardResumeAll" style="width: 100%; background: #16A34A; border-color: #16A34A; font-weight: 700; padding: 9px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <i class="fa-solid fa-play"></i> Resume All Campaigns
+                </button>
+              </div>
+            </div>
+
+            <!-- Campaign-wise Breakdown Grid -->
+            <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: 10px; padding: 20px;">
+              <h4 style="margin: 0 0 14px 0; font-size: 15px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> Current Drip Campaigns Status Breakdown
+              </h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;" id="dripCampaignsBreakdownGrid">
+                <!-- WhatsApp Inquiries -->
+                <div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; background: #F8FAFC;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <strong style="color: #0F172A; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> WhatsApp Inquiries
+                    </strong>
+                    <span class="badge" id="ctrlBadgeInquiryStatus" style="background: #25D366; color: #fff; font-size: 10px;">Active</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-top: 6px;">
+                    <span>Active in Queue:</span>
+                    <strong id="ctrlInquiryActive" style="color: #0F172A;">0</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-top: 4px;">
+                    <span>Paused:</span>
+                    <strong id="ctrlInquiryPaused" style="color: #DC2626;">0</strong>
+                  </div>
+                </div>
+
+                <!-- Call Inquiries -->
+                <div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; background: #F8FAFC;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <strong style="color: #0F172A; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-phone-volume" style="color: #0284C7;"></i> Call Inquiries
+                    </strong>
+                    <span class="badge" id="ctrlBadgeCallStatus" style="background: #0284C7; color: #fff; font-size: 10px;">Active</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-top: 6px;">
+                    <span>Active in Queue:</span>
+                    <strong id="ctrlCallActive" style="color: #0F172A;">0</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-top: 4px;">
+                    <span>Paused:</span>
+                    <strong id="ctrlCallPaused" style="color: #DC2626;">0</strong>
+                  </div>
+                </div>
+
+                <!-- Lab Visits -->
+                <div style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; background: #F8FAFC;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <strong style="color: #0F172A; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-vial-virus" style="color: #059669;"></i> Lab Walk-in Visits
+                    </strong>
+                    <span class="badge" id="ctrlBadgeLabStatus" style="background: #059669; color: #fff; font-size: 10px;">Active</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-top: 6px;">
+                    <span>Active in Queue:</span>
+                    <strong id="ctrlLabActive" style="color: #0F172A;">0</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748B; margin-top: 4px;">
+                    <span>Paused:</span>
+                    <strong id="ctrlLabPaused" style="color: #DC2626;">0</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          
+        </div>
+      </section>
+
+      <!-- TAB 5: CUSTOM BROADCAST CAMPAIGNS -->
+      <section class="tab-content" id="tab-campaigns">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-bullhorn"></i></div>
+            <div class="stat-info">
+              <h3>Total Campaigns</h3>
+              <p class="stat-value" id="statTotalCampaigns">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="stat-info">
+              <h3>Total Dispatched</h3>
+              <p class="stat-value" id="statCampaignsSent">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-file-pdf"></i></div>
+            <div class="stat-info">
+              <h3>Media Broadcasts</h3>
+              <p class="stat-value" id="statMediaBroadcasts">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-amber"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="stat-info">
+              <h3>Anti-Ban Throttling</h3>
+              <p class="stat-value">15–25s Safe Mode</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Campaign Card -->
+        <div class="card margin-top">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <h3><i class="fa-solid fa-paper-plane"></i> Create & Launch Custom Broadcast</h3>
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <button type="button" class="btn btn-danger btn-sm" id="btnEmergencyStopCampaign" style="display:none; background:#DC2626; color:#fff; font-weight:700; padding:6px 14px; border:none; border-radius:6px; cursor:pointer; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(220,38,38,0.3);">
+                <i class="fa-solid fa-octagon-xmark"></i> Stop Running Broadcast
+              </button>
+              <span class="status-pill status-in-progress" id="campaignStatusBadge" style="display:none;"><i class="fa-solid fa-spinner fa-spin"></i> Broadcasting...</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Progress Bar (shown when active) -->
+            <div id="campaignProgressBox" style="display:none; margin-bottom: 20px; padding: 16px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size: 13px; font-weight: 600; margin-bottom: 8px; flex-wrap:wrap; gap:8px;">
+                <span id="campaignProgressTitle" style="color:#991B1B;"><i class="fa-solid fa-spinner fa-spin"></i> Dispatching Broadcast...</span>
+                <div style="display:flex; align-items:center; gap: 12px;">
+                  <span id="campaignProgressRatio" style="color:#991B1B; font-weight:700;">0 / 0 sent</span>
+                  <button type="button" class="btn btn-danger btn-sm" id="btnStopCampaign" style="background:#DC2626; color:#fff; font-weight:700; padding:6px 14px; border:none; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 3px rgba(0,0,0,0.12);">
+                    <i class="fa-solid fa-hand"></i> Stop Broadcast Immediately
+                  </button>
+                </div>
+              </div>
+              <div style="background:#FEE2E2; border-radius: 999px; height: 10px; overflow:hidden;">
+                <div id="campaignProgressBar" style="width: 0%; height: 100%; background: #DC2626; transition: width 0.3s ease;"></div>
+              </div>
+              <small style="color: #7F1D1D; margin-top: 6px; display: block;">
+                Safe Human Anti-Ban throttle in progress. If you made a mistake or want to halt dispatch, click <strong>Stop Broadcast Immediately</strong> to cancel all remaining messages immediately.
+              </small>
+            </div>
+
+            <form id="formCreateCampaign">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                  <label>Campaign Title / Internal Name *</label>
+                  <input type="text" id="campaignTitle" placeholder="e.g. April 2026 Batch Announcement" required>
+                </div>
+                <div class="form-group">
+                  <label>Audience Source *</label>
+                  <select id="campaignAudienceType">
+                    <option value="custom">Paste Custom Contact Numbers</option>
+                    <option value="excel">Upload Contacts by Excel / CSV File</option>
+                    <option value="lab_visits">🧪 Lab Visited Students Walk-in</option>
+                    <option value="call_inquiries">📞 Call Inquiry Students</option>
+                    <option value="leads">Filter from Existing CRM Leads</option>
+                    <option value="faculties">College Faculties Directory</option>
+                    <option value="contacts_all">All Synced WhatsApp Contacts</option>
+                    <option value="contacts_saved">Saved Phone Contacts (With Names)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Audience Box: Excel / CSV Upload -->
+              <div id="boxAudienceExcel" style="display:none; padding: 16px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                  <div>
+                    <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: var(--text-dark);">
+                      <i class="fa-solid fa-file-excel" style="color: #107c41; margin-right: 6px;"></i> Upload Excel / CSV Contact Sheet
+                    </h4>
+                    <small style="color: #64748B;">Upload your Excel (.xlsx, .xls) or CSV file with student contacts.</small>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadSampleExcel" title="Download Sample Excel Template with Name, Phone, Course, Reg No">
+                    <i class="fa-solid fa-download"></i> Download Sample Excel
+                  </button>
+                </div>
+
+                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                  <input type="file" id="campaignExcelFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
+                  <button type="button" class="btn btn-secondary" id="btnBrowseExcelFile">
+                    <i class="fa-solid fa-folder-open"></i> Choose Excel / CSV File
+                  </button>
+                  <span id="campaignExcelFileName" style="font-size: 13px; color: #475569; font-style: italic;">No file chosen yet</span>
+                  <button type="button" class="btn-icon-sm" id="btnRemoveExcelFile" style="display:none; color: #DC2626;" title="Remove Selected File">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <!-- Excel Details: Column Selectors, Counts, Preview Table -->
+                <div id="boxExcelDetails" style="display: none; margin-top: 12px;">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #E2E8F0;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label style="font-size: 12px; font-weight: 600;">Student Name Column *</label>
+                      <select id="excelNameColumn" class="form-control" style="font-size: 13px;"></select>
+                      <small style="color: #64748B; font-size: 11px;">Select the column with student/candidate names</small>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label style="font-size: 12px; font-weight: 600;">WhatsApp Phone Number Column *</label>
+                      <select id="excelPhoneColumn" class="form-control" style="font-size: 13px;"></select>
+                      <small style="color: #64748B; font-size: 11px;">Select the column with 10-digit mobile numbers</small>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="font-size: 13px; color: var(--primary-dark); font-weight: 600;">
+                      <i class="fa-solid fa-circle-check" style="color: #059669;"></i>
+                      <span id="campaignExcelCount">0 contacts loaded</span>
+                      <span id="campaignExcelInvalidCount" style="color: #DC2626; margin-left: 8px; font-weight: normal; font-size: 12px;"></span>
+                    </div>
+                    <small style="color: #64748B;">Showing first 5 rows preview</small>
+                  </div>
+
+                  <!-- Live Preview Table -->
+                  <div style="max-height: 180px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 6px; background: #fff;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+                      <thead style="background: #F1F5F9; position: sticky; top: 0;">
+                        <tr>
+                          <th style="padding: 6px 10px; border-bottom: 1px solid #CBD5E1;">#</th>
+                          <th style="padding: 6px 10px; border-bottom: 1px solid #CBD5E1;">Student Name</th>
+                          <th style="padding: 6px 10px; border-bottom: 1px solid #CBD5E1;">Excel Phone</th>
+                          <th style="padding: 6px 10px; border-bottom: 1px solid #CBD5E1;">Clean WhatsApp Number</th>
+                          <th style="padding: 6px 10px; border-bottom: 1px solid #CBD5E1;">Sample Personalized Greeting</th>
+                        </tr>
+                      </thead>
+                      <tbody id="excelPreviewTableBody">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Audience Box: WhatsApp Contacts Info -->
+              <div id="boxAudienceContacts" style="display:none; padding: 16px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px;">
+                <div style="font-size: 13px; color: var(--primary-dark); font-weight: 600;">
+                  <i class="fa-solid fa-address-book"></i> Target Audience: <span id="campaignContactsCount">0</span> WhatsApp contacts match this selection.
+                </div>
+              </div>
+
+              <!-- Audience Box: Lab Visited Students -->
+              <div id="boxAudienceLabVisits" style="display:none; padding: 16px; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; margin-bottom: 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                  <div>
+                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #166534;">
+                      <i class="fa-solid fa-vial-virus" style="color: #059669; margin-right: 6px;"></i> Target Lab Visited Students
+                    </h4>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #15803D;">
+                      All direct walk-in candidates who visited Helix BioFast Labs are pre-selected for this broadcast.
+                    </p>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnExportLabVisitsFromCampaign" style="background:#fff; color:#107C41; border:1px solid #107C41; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+                    <i class="fa-solid fa-file-excel"></i> Export Excel (.xlsx)
+                  </button>
+                </div>
+                <div style="margin-top: 12px; font-size: 13px; color: #166534; font-weight: 600; display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-circle-check" style="color: #059669;"></i>
+                  <span>Total Recipients: <strong id="campaignLabVisitsCount">0</strong> Lab Visited Students ready</span>
+                </div>
+              </div>
+
+              <!-- Audience Box: Call Inquiry Students -->
+              <div id="boxAudienceCallInquiries" style="display:none; padding: 16px; background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 8px; margin-bottom: 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                  <div>
+                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: #0369A1;">
+                      <i class="fa-solid fa-phone-volume" style="color: #0284c7; margin-right: 6px;"></i> Target Call Inquiry Students
+                    </h4>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #0284c7;">
+                      All candidates who inquired via phone call are pre-selected for this broadcast.
+                    </p>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnExportCallInquiriesFromCampaign" style="background:#fff; color:#107C41; border:1px solid #107C41; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+                    <i class="fa-solid fa-file-excel"></i> Export Excel (.xlsx)
+                  </button>
+                </div>
+                <div style="margin-top: 12px; font-size: 13px; color: #0369A1; font-weight: 600; display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-circle-check" style="color: #0284c7;"></i>
+                  <span>Total Recipients: <strong id="campaignCallInquiriesCount">0</strong> Call Inquiry Students ready</span>
+                </div>
+              </div>
+
+              <!-- Audience Box: Custom Numbers -->
+              <div class="form-group" id="boxAudienceCustom">
+                <label>Recipient WhatsApp Contact Numbers (Comma or Newline separated) *</label>
+                <textarea id="campaignCustomNumbers" rows="4" placeholder="e.g.&#10;9876543210&#10;918383897225, 9812345678&#10;+91 9711223344"></textarea>
+                <small>Enter 10-digit Indian numbers. System automatically cleanses and formats to +91 country code.</small>
+              </div>
+
+              <!-- Audience Box: CRM Leads Filter -->
+              <div id="boxAudienceLeads" style="display:none; padding: 16px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label>Filter by Program Category</label>
+                    <select id="campaignLeadCategory">
+                      <option value="All">All Categories</option>
+                      <option value="Short Term (7D)">Short Term (7D)</option>
+                      <option value="Advance (15D)">Advance (15D)</option>
+                      <option value="Industrial (30D)">Industrial (30D)</option>
+                      <option value="Job-Oriented">Job-Oriented</option>
+                      <option value="Project/Dissertation">Project/Dissertation</option>
+                      <option value="PhD Assistance">PhD Assistance</option>
+                      <option value="Forensic Services">Forensic Services</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label>Filter by Lead Status</label>
+                    <select id="campaignLeadStatus">
+                      <option value="All">All Statuses</option>
+                      <option value="New">New</option>
+                      <option value="Contacted">Contacted</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Enrolled">Enrolled</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="margin-top: 12px; font-size: 13px; color: var(--primary-dark); font-weight: 600;">
+                  <i class="fa-solid fa-users"></i> Estimated Matching Recipients: <span id="campaignLeadCount">0</span>
+                </div>
+              </div>
+
+              <!-- Audience Box: College Faculties Filter -->
+              <div id="boxAudienceFaculties" style="display:none; padding: 16px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label>Filter by Department</label>
+                    <select id="campaignFacultyDept">
+                      <option value="All">All Departments</option>
+                      <option value="Biotechnology">Biotechnology</option>
+                      <option value="Microbiology">Microbiology</option>
+                      <option value="Life Sciences">Life Sciences</option>
+                      <option value="Biochemistry">Biochemistry</option>
+                      <option value="Pharmacy">Pharmacy</option>
+                      <option value="Botany">Botany</option>
+                      <option value="Zoology">Zoology</option>
+                      <option value="Bioinformatics">Bioinformatics</option>
+                      <option value="Other">Other Departments</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label>Filter by College / University (Optional)</label>
+                    <input type="text" id="campaignFacultyCollege" placeholder="Type college name or leave blank for all...">
+                  </div>
+                </div>
+                <div style="margin-top: 12px; font-size: 13px; color: var(--primary-dark); font-weight: 600;">
+                  <i class="fa-solid fa-chalkboard-user"></i> Estimated Matching Faculties: <span id="campaignFacultyCount">0</span>
+                </div>
+              </div>
+
+              <!-- Message Content -->
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                  <label style="margin-bottom: 0;">WhatsApp Message Content * (Professional format - No asterisks/stars)</label>
+                  <div id="boxDynamicPlaceholders" style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                    <span style="font-size: 11px; color: #64748B;">Insert variable:</span>
+                    <button type="button" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 12px;" onclick="insertMessagePlaceholder('{name}')" title="Insert candidate name placeholder">+ {name}</button>
+                  </div>
+                </div>
+                <textarea id="campaignMessage" rows="6" placeholder="Write your broadcast announcement...&#10;&#10;e.g.&#10;Hi {name}, your registration has been successfully confirmed!&#10;We are delighted to welcome you to Helix BioFast Labs." required></textarea>
+                <small id="campaignPlaceholderHelp">Placeholder: <code>{name}</code> is automatically replaced with each student's name from your Excel sheet or contacts list. Any other column from your Excel sheet can also be inserted as <code>{column_name}</code>.</small>
+              </div>
+
+              <!-- Attachment Picker (PDF / JPEG) -->
+              <div class="form-group">
+                <label>Attach PDF Brochure / Flyer or JPEG Image (Optional)</label>
+                <div class="file-upload-dropzone" id="campaignDropzone">
+                  <input type="file" id="campaignFileInput" accept=".pdf, .jpg, .jpeg, .png" style="display:none;">
+                  <button type="button" class="btn btn-secondary" id="btnBrowseFile">
+                    <i class="fa-solid fa-paperclip"></i> Choose PDF or Image
+                  </button>
+                  <span id="campaignFileInfo" style="margin-left: 12px; font-size: 13px; color: var(--text-secondary);">No file chosen (Accepts .pdf, .jpg, .jpeg, .png up to 25MB)</span>
+                  <button type="button" class="btn-icon-sm" id="btnRemoveAttachment" style="display:none; margin-left: 8px;" title="Remove Attachment">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Anti-Ban Speed & Protection Mode -->
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label><i class="fa-solid fa-shield-halved" style="color: #10B981;"></i> Speed & Anti-Ban Protection Mode</label>
+                  <select id="campaignSpeedMode">
+                    <option value="safe" selected>Safe Human Mode (15–25s delay + 2-min batch rest — Recommended for Excel lists)</option>
+                    <option value="warm">Warm Contacts Mode (8–14s delay — For existing CRM leads)</option>
+                  </select>
+                </div>
+                <div style="font-size: 12px; color: #475569; background: #F1F5F9; border-radius: 6px; padding: 10px 14px; border-left: 3px solid #0EA5E9; display: flex; align-items: center;">
+                  <div>
+                    <strong>Cold Outreach Advisory:</strong> When sending to new/unsaved contacts from Excel, always use Safe Mode and limit batches to 20–30 contacts per run to protect your WhatsApp account.
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 20px;">
+                <div style="font-size: 13px; color: var(--text-secondary);">
+                  <i class="fa-solid fa-shield-halved" style="color: #10B981;"></i> Safe Human Anti-Ban active: 15–25s delay, typing presence & batch resting.
+                </div>
+                <button type="submit" class="btn btn-primary" id="btnLaunchCampaign">
+                  <i class="fa-solid fa-paper-plane"></i> Launch Broadcast Campaign
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Previous Campaigns Table -->
+        <div class="card margin-top">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Campaign History & Logs</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Campaign Name</th>
+                    <th>Created Time (IST)</th>
+                    <th>Audience Count</th>
+                    <th>Sent</th>
+                    <th>Failed</th>
+                    <th>Attachment</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="campaignsTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center">Loading campaigns...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: INSTITUTIONAL & WORKSHOP PORTAL -->
+      <section class="tab-content" id="tab-institutions">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-building-columns"></i></div>
+            <div class="stat-info">
+              <h3>College Inquiries</h3>
+              <p class="stat-value" id="statInstTotal">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-file-contract"></i></div>
+            <div class="stat-info">
+              <h3>MoUs Signed</h3>
+              <p class="stat-value" id="statInstMou">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="stat-info">
+              <h3>Workshops Scheduled</h3>
+              <p class="stat-value" id="statInstScheduled">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-amber"><i class="fa-solid fa-user-graduate"></i></div>
+            <div class="stat-info">
+              <h3>Expected Students</h3>
+              <p class="stat-value" id="statInstStudents">0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card margin-top">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <h3><i class="fa-solid fa-graduation-cap"></i> College & University Workshop Inquiries</h3>
+            <button class="btn btn-primary" id="btnOpenAddInstitution">
+              <i class="fa-solid fa-plus"></i> Register College / Workshop Inquiry
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="toolbar" style="margin-bottom: 16px;">
+              <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="instSearchInput" placeholder="Search college name, faculty, or topic...">
+              </div>
+              <div class="filter-box">
+                <select id="instStatusFilter">
+                  <option value="All">All Statuses</option>
+                  <option value="Inquiry">Inquiry</option>
+                  <option value="Proposal Sent">Proposal Sent</option>
+                  <option value="MoU Signed">MoU Signed</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>College / Institution</th>
+                    <th>Faculty Contact</th>
+                    <th>WhatsApp Number</th>
+                    <th>Department</th>
+                    <th>Workshop Topic</th>
+                    <th>Students</th>
+                    <th>Preferred Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="institutionsTableBody">
+                  <tr>
+                    <td colspan="9" class="text-center">Loading institutions...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: COLLEGE FACULTY DIRECTORY -->
+      <section class="tab-content" id="tab-faculties">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-chalkboard-user"></i></div>
+            <div class="stat-info">
+              <h3>Total Faculty Contacts</h3>
+              <p class="stat-value" id="statTotalFaculties">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-building-columns"></i></div>
+            <div class="stat-info">
+              <h3>Colleges / Institutions</h3>
+              <p class="stat-value" id="statFacultyColleges">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-dna"></i></div>
+            <div class="stat-info">
+              <h3>Biotech / Life Sci Depts</h3>
+              <p class="stat-value" id="statFacultyBiotech">0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card margin-top">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h3><i class="fa-solid fa-chalkboard-user"></i> College Faculty Directory</h3>
+              <small style="color:var(--text-muted); display:block; margin-top:2px;">Store professors, HODs, and faculty leads for specialized academic broadcasts and workshop campaigns.</small>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" id="btnExportFacultiesCsv">
+                <i class="fa-solid fa-file-csv"></i> Export CSV
+              </button>
+              <button class="btn btn-primary" id="btnOpenAddFaculty" onclick="openAddFacultyModal()">
+                <i class="fa-solid fa-plus"></i> Add Faculty Contact
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="toolbar" style="margin-bottom: 16px;">
+              <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="facultySearchInput" placeholder="Search faculty name, college, email, or city...">
+              </div>
+              <div class="filter-box">
+                <select id="facultyDeptFilter">
+                  <option value="">All Departments</option>
+                  <option value="Biotechnology">Biotechnology</option>
+                  <option value="Microbiology">Microbiology</option>
+                  <option value="Biochemistry">Biochemistry</option>
+                  <option value="Life Sciences">Life Sciences</option>
+                  <option value="Pharmacy">Pharmacy</option>
+                  <option value="Botany / Zoology">Botany / Zoology</option>
+                  <option value="Bioinformatics">Bioinformatics</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Faculty Name</th>
+                    <th>Designation</th>
+                    <th>College / University</th>
+                    <th>Department</th>
+                    <th>WhatsApp Number</th>
+                    <th>Email</th>
+                    <th>Location</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="facultiesTableBody">
+                  <tr>
+                    <td colspan="9" class="text-center">Loading faculty contacts...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: WHATSAPP CONTACTS DIRECTORY -->
+      <section class="tab-content" id="tab-contacts">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-address-book"></i></div>
+            <div class="stat-info">
+              <h3>Total WhatsApp Contacts</h3>
+              <p class="stat-value" id="statTotalContacts">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-user-check"></i></div>
+            <div class="stat-info">
+              <h3>Saved Phone Contacts</h3>
+              <p class="stat-value" id="statSavedContacts">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-phone"></i></div>
+            <div class="stat-info">
+              <h3>WhatsApp Numbers</h3>
+              <p class="stat-value" id="statPhoneContacts">0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top: 20px;">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="contactSearchInput" placeholder="Search contacts by name or phone number...">
+          </div>
+          <div class="filter-box">
+            <select id="contactFilterSelect">
+              <option value="all">All Contacts (Synced)</option>
+              <option value="saved">Saved in Phonebook (With Names)</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:10px; margin-left:auto;">
+            <button class="btn btn-secondary" id="btnRefreshContacts">
+              <i class="fa-solid fa-rotate"></i> Refresh
+            </button>
+            <a href="/api/export/contacts" class="btn btn-secondary" id="btnExportContacts" download="whatsapp_contacts.csv">
+              <i class="fa-solid fa-file-csv"></i> Export CSV
+            </a>
+          </div>
+        </div>
+
+        <div class="card margin-top">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Contact Name</th>
+                  <th>WhatsApp Profile Name</th>
+                  <th>WhatsApp Phone Number</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="contactsTableBody">
+                <tr>
+                  <td colspan="5" class="text-center">Loading WhatsApp contacts...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-bar" id="contactsPaginationBar" style="display:flex; justify-content:space-between; align-items:center; padding: 14px 20px; border-top: 1px solid var(--border-color);">
+            <span id="contactsPageInfo" style="font-size: 13px; color: var(--text-secondary);">Showing 0 contacts</span>
+            <div style="display:flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" id="btnContactsPrevPage" disabled>Previous</button>
+              <button class="btn btn-secondary btn-sm" id="btnContactsNextPage" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: BOT SETTINGS & QR CODE -->
+      <section class="tab-content" id="tab-settings">
+        <div class="dashboard-grid">
+          <!-- Connection Settings -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-link"></i> WhatsApp Web Device Link</h3>
+            </div>
+            <div class="card-body text-center">
+              <div id="qrFullContainer">
+                <p>Loading QR Code...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Phone & Brochure Config -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-sliders"></i> General CRM Settings</h3>
+            </div>
+            <div class="card-body">
+              <form id="configForm">
+                <div class="form-group">
+                  <label>Staff Admin WhatsApp Phone Number (for Lead Alerts)</label>
+                  <input type="text" id="cfgAdminPhone" placeholder="e.g. 918383897225@s.whatsapp.net">
+                  <small>Incoming hot leads will send instant alerts to this WhatsApp number.</small>
+                </div>
+
+                <div class="form-group">
+                  <label>Brochure Download URL (Google Drive Direct Link)</label>
+                  <input type="text" id="cfgBrochureUrl" placeholder="https://drive.google.com/uc?export=download&id=...">
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btnSaveGeneralConfig">
+                  <i class="fa-solid fa-floppy-disk"></i> Save General Settings
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Gemini AI Intelligent Auto-Reply Settings -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3><i class="fa-solid fa-brain"></i> Gemini AI Auto-Responder Settings</h3>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="status-pill status-enrolled" id="aiStatusBadge">AI Active</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <form id="aiConfigForm">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                  <div class="form-group">
+                    <label>Gemini AI Auto-Reply</label>
+                    <select id="cfgAiEnabled">
+                      <option value="1">Enabled (Gemini AI responds to questions)</option>
+                      <option value="0">Disabled (Use rule-based fallback only)</option>
+                    </select>
+                    <small>When enabled, Gemini AI automatically answers student queries in a professional format.</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label>AI Model</label>
+                    <select id="cfgAiModel">
+                      <option value="gemini-3.6-flash">gemini-3.6-flash (Recommended - Latest & Fastest)</option>
+                      <option value="gemini-3.5-flash">gemini-3.5-flash (Fast & Lightweight)</option>
+                      <option value="gemini-flash-latest">gemini-flash-latest</option>
+                    </select>
+                    <small>High-speed Google conversational model for WhatsApp.</small>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Gemini API Key</label>
+                  <div class="input-with-action" style="display:flex; gap:8px;">
+                    <input type="password" id="cfgGeminiApiKey" placeholder="Enter Gemini API Key (e.g. AQ.Ab8RN...)">
+                    <button type="button" class="btn btn-secondary" id="btnToggleApiKey" title="Show / Hide Key" style="white-space:nowrap; padding:0 14px;">
+                      <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                    </button>
+                  </div>
+                  <small>Your Gemini API key is securely stored in the local SQLite database.</small>
+                </div>
+
+                <div class="form-group">
+                  <label>AI System Instructions & Knowledge Base (Professional Tone)</label>
+                  <textarea id="cfgAiSystemPrompt" rows="8" placeholder="Enter instructions, course list, guidelines..."></textarea>
+                  <small>Customize institute details, course fees, timings, and policies. Keeps messages in a clean, professional format with minimal emojis.</small>
+                </div>
+
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:10px;">
+                  <button type="submit" class="btn btn-primary" id="btnSaveAiConfig">
+                    <i class="fa-solid fa-floppy-disk"></i> Save AI Settings
+                  </button>
+                  <button type="button" class="btn btn-secondary" id="btnTestAiConnection">
+                    <i class="fa-solid fa-vial"></i> Test AI Connection
+                  </button>
+                  <span id="aiTestStatus" style="font-size:13px; font-weight:600;"></span>
+                </div>
+
+                <div id="aiTestResultBox" style="display:none; margin-top:16px; padding:14px; background:#F8FAFC; border:1px solid var(--border-color); border-radius:8px; font-size:13px;">
+                  <strong>Sample AI Reply:</strong>
+                  <p id="aiTestReplyText" style="white-space:pre-wrap; margin-top:6px; color:#334155; font-family:inherit;"></p>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Official Information Brochure (PDF) Management -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3><i class="fa-solid fa-file-pdf" style="color: #EF4444;"></i> Official Information Brochure (PDF)</h3>
+              <span class="status-pill status-enrolled" id="brochureStatusBadge">Active</span>
+            </div>
+            <div class="card-body">
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                This official PDF brochure is automatically sent by the bot whenever a student selects Option 2 (Information Brochure) or inquires about the brochure in WhatsApp chat. You can upload a new or updated brochure PDF at any time.
+              </p>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+                <!-- Current Brochure Info & Upload Form -->
+                <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+                  <h4 style="font-size: 14px; margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Current Active Brochure
+                  </h4>
+                  <div id="currentBrochureDetails" style="font-size: 13px; color: var(--text-main); margin-bottom: 16px;">
+                    <div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span style="color: var(--text-secondary);">File Name:</span>
+                      <strong id="brochureFileName">Helix_BioFast_Information_Brochure.pdf</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span style="color: var(--text-secondary);">File Size:</span>
+                      <span id="brochureFileSize">--</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px dashed var(--border-color);">
+                      <span style="color: var(--text-secondary);">Last Updated:</span>
+                      <span id="brochureLastModified">--</span>
+                    </div>
+                  </div>
+
+                  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 16px;">
+                    <a href="/Helix_BioFast_Information_Brochure.pdf" target="_blank" class="btn btn-secondary btn-sm" id="btnViewBrochure">
+                      <i class="fa-solid fa-eye"></i> View / Download PDF
+                    </a>
+                  </div>
+
+                  <form id="formUploadBrochure">
+                    <label style="font-weight: 600; font-size: 13px; display:block; margin-bottom: 6px;">
+                      Upload New Brochure PDF
+                    </label>
+                    <div style="display:flex; gap: 8px; align-items:center; flex-wrap:wrap;">
+                      <input type="file" id="brochureFileInput" accept=".pdf" style="display:none;">
+                      <button type="button" class="btn btn-secondary" id="btnSelectBrochureFile">
+                        <i class="fa-solid fa-file-arrow-up"></i> Choose PDF File
+                      </button>
+                      <span id="selectedBrochureFileName" style="font-size: 12px; color: var(--text-secondary);">No file chosen (PDF up to 25MB)</span>
+                    </div>
+                    <div style="margin-top: 12px; display:flex; gap: 10px; align-items:center;">
+                      <button type="submit" class="btn btn-primary" id="btnUploadBrochureSubmit" disabled>
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Replace Active Brochure
+                      </button>
+                      <span id="brochureUploadStatus" style="font-size: 12px; font-weight: 600;"></span>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Test Send Brochure -->
+                <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+                  <h4 style="font-size: 14px; margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-paper-plane" style="color: #10B981;"></i> Test Send Brochure via WhatsApp
+                  </h4>
+                  <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+                    Verify delivery by sending the active official brochure PDF directly to any 10-digit WhatsApp number right now.
+                  </p>
+                  <form id="formTestSendBrochure">
+                    <div class="form-group">
+                      <label>Recipient WhatsApp Number (10 Digits)</label>
+                      <input type="text" id="testBrochurePhone" placeholder="e.g. 9876543210" required>
+                      <small>Enter 10-digit Indian phone number. System automatically normalizes to +91.</small>
+                    </div>
+                    <div style="display:flex; gap: 10px; align-items:center;">
+                      <button type="submit" class="btn btn-secondary" id="btnTestSendBrochure">
+                        <i class="fa-solid fa-paper-plane"></i> Send Test Brochure
+                      </button>
+                      <span id="testBrochureStatus" style="font-size: 12px; font-weight: 600;"></span>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Staff & Counselor Morning Digest -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3><i class="fa-solid fa-bell"></i> Daily Team & Counselor Morning Digest</h3>
+              <span class="status-pill status-enrolled" id="digestStatusBadge">9:00 AM IST</span>
+            </div>
+            <div class="card-body">
+              <form id="digestConfigForm">
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+                  <div class="form-group">
+                    <label>Staff WhatsApp Number</label>
+                    <input type="text" id="cfgStaffPhone" placeholder="e.g. 9876543210">
+                    <small>Receives morning lead pipeline and drip summary.</small>
+                  </div>
+                  <div class="form-group">
+                    <label>Counselor WhatsApp Number</label>
+                    <input type="text" id="cfgCounselorPhone" placeholder="e.g. 9876543211">
+                    <small>Receives follow-up tasks and new walk-in list.</small>
+                  </div>
+                  <div class="form-group">
+                    <label>Director WhatsApp Number</label>
+                    <input type="text" id="cfgDirectorPhone" placeholder="e.g. 9876543212">
+                    <small>Receives comprehensive executive CRM metrics.</small>
+                  </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top: 10px;">
+                  <div class="form-group">
+                    <label>Daily Automated Dispatch Time (IST)</label>
+                    <input type="time" id="cfgDigestTime" value="09:00">
+                    <small>Time in Indian Standard Time (IST) when the digest is automatically sent.</small>
+                  </div>
+                  <div class="form-group">
+                    <label>Automated Digest Status</label>
+                    <select id="cfgDigestEnabled">
+                      <option value="1">Enabled (Automatically send daily at scheduled time)</option>
+                      <option value="0">Disabled (Manual send only)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:10px;">
+                  <button type="submit" class="btn btn-primary" id="btnSaveDigestConfig">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Digest Settings
+                  </button>
+                  <button type="button" class="btn btn-secondary" id="btnSendDigestNow">
+                    <i class="fa-solid fa-paper-plane"></i> Send Morning Digest Now
+                  </button>
+                  <span id="digestActionStatus" style="font-size:13px; font-weight:600;"></span>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Google Sheets Live 2-Way Sync & CSV Data Exports -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-file-excel"></i> Google Sheets Live Sync & Excel/CSV Exports</h3>
+            </div>
+            <div class="card-body">
+              <form id="googleSheetForm">
+                <div class="form-group">
+                  <label>Google Apps Script Webhook URL (for Real-Time Lead Sync)</label>
+                  <input type="text" id="cfgGoogleSheetUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                  <small>Every new inquiry and lab visit student will automatically sync to this Google Sheet in real time.</small>
+                </div>
+
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom: 24px;">
+                  <button type="submit" class="btn btn-primary" id="btnSaveSheetConfig">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Google Sheet URL
+                  </button>
+                  <button type="button" class="btn btn-secondary" id="btnSyncAllToSheet">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Sync All CRM Leads to Google Sheet
+                  </button>
+                  <span id="sheetSyncStatus" style="font-size:13px; font-weight:600;"></span>
+                </div>
+              </form>
+
+              <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+              <div>
+                <h4 style="margin-bottom: 12px; font-size: 14px;"><i class="fa-solid fa-download"></i> 1-Click Excel / CSV Data Downloads</h4>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                  <a href="/api/export/leads" class="btn btn-secondary" download="helix_leads.csv">
+                    <i class="fa-solid fa-file-csv"></i> Download Leads CSV
+                  </a>
+                  <a href="/api/export/chats" class="btn btn-secondary" download="helix_chats.csv">
+                    <i class="fa-solid fa-comments"></i> Download Chat Messages CSV
+                  </a>
+                  <a href="/api/export/drip-logs" class="btn btn-secondary" download="helix_drip_logs.csv">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Download Drip Logs CSV
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Drive Cloud Backup & Archive -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3><i class="fa-brands fa-google-drive" style="color: #4285F4;"></i> Google Drive Cloud Backup &amp; Data Archive</h3>
+              <span class="badge" id="gdriveBackupStatusBadge" style="background:#0284c7; color:#fff; font-size:11px; padding:4px 8px; border-radius:10px;">Cloud Ready</span>
+            </div>
+            <div class="card-body">
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                Safeguard all vital business data including student leads, full WhatsApp contact list, drip follow-up queues, message history, and faculty records. Save your Google Drive folder link below to access your cloud backups anytime.
+              </p>
+
+              <form id="googleDriveForm" style="margin-bottom: 18px;">
+                <div class="form-group">
+                  <label style="font-weight:600;">Google Drive Folder Link / Cloud Storage URL</label>
+                  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="cfgGoogleDriveUrl" placeholder="https://drive.google.com/drive/folders/..." style="flex:1; min-width:280px;">
+                    <button type="submit" class="btn btn-primary" id="btnSaveGoogleDriveUrl" style="background:#0284C7; border-color:#0284C7; display:inline-flex; align-items:center; gap:6px;">
+                      <i class="fa-solid fa-floppy-disk"></i> Save Drive Link
+                    </button>
+                    <a href="#" target="_blank" class="btn btn-secondary" id="btnOpenGoogleDriveFolder" style="display:inline-flex; align-items:center; gap:6px;">
+                      <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Google Drive
+                    </a>
+                  </div>
+                  <small style="color:var(--text-secondary); margin-top:4px; display:block;">
+                    You can update this link anytime. It is saved in your local database and does not require updating GitHub.
+                  </small>
+                </div>
+              </form>
+
+              <div style="background:#F0F9FF; border:1px solid #BAE6FD; border-radius:8px; padding:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <h4 style="margin:0; font-size:14px; color:#0369A1; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> 1-Click Complete CRM Data Backup
+                  </h4>
+                  <p style="margin:4px 0 0 0; font-size:12px; color:#0284C7;">
+                    Exports an all-in-one verified JSON archive of all tables (Leads, Contacts, Drip Queue, Logs, Config).
+                  </p>
+                  <div style="margin-top:6px; font-size:11px; color:#64748B;">
+                    Last Backup: <strong id="lblLastBackupTime">Not backed up yet</strong>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                  <button type="button" class="btn btn-primary" id="btnTriggerCloudBackup" style="background:#16A34A; border-color:#16A34A; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-download"></i> Backup All Important Data Now
+                  </button>
+                  <span id="backupActionStatus" style="font-size:12px; font-weight:600;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Network Access / Open on Any Computer Browser -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3><i class="fa-solid fa-network-wired" style="color: #10B981;"></i> Open CRM on Any Computer or Phone (Local Network)</h3>
+              <span class="badge" style="background:#10B981; color:#fff; font-size:11px; padding:4px 8px; border-radius:10px;">Wi-Fi &amp; LAN</span>
+            </div>
+            <div class="card-body">
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
+                You can manage this software from any other computer, laptop, tablet, or mobile phone on the same Wi-Fi / local network. Open any browser and visit:
+              </p>
+
+              <div style="background:#F8FAFC; border:1px solid var(--border-color); border-radius:8px; padding:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <i class="fa-solid fa-globe" style="font-size:24px; color:var(--primary);"></i>
+                  <div>
+                    <span style="font-size:12px; color:var(--text-secondary); font-weight:600;">Direct Link for Other Computers on Your Network:</span>
+                    <div style="font-size:16px; font-weight:700; color:#0F172A; font-family:monospace; margin-top:2px;" id="networkAccessLink">
+                      Loading network address...
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:8px;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnCopyNetworkLink" style="font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-copy"></i> Copy Link
+                  </button>
+                  <a href="#" target="_blank" class="btn btn-primary btn-sm" id="btnOpenNetworkLink" style="font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in New Tab
+                  </a>
+                </div>
+              </div>
+
+              <div style="margin-top:12px; font-size:12px; color:var(--text-secondary); line-height:1.5;">
+                <i class="fa-solid fa-circle-info" style="color:#0284c7;"></i>
+                <strong>Tip:</strong> Keep the CRM server running on the main computer. Any team member can open this link on their computer browser without installing Node.js or software.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Edit Lead Modal -->
+  <div class="modal-overlay" id="editLeadModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Lead Details</h3>
+        <button class="close-btn" id="btnCloseModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editLeadId">
+        <div class="form-group">
+          <label>Lead Name</label>
+          <input type="text" id="editLeadName" placeholder="Student Full Name">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp Phone Number</label>
+          <input type="text" id="editLeadPhone" placeholder="e.g. 919876543210">
+          <small>Save real 10-digit phone number for future contact and WhatsApp follow-up.</small>
+        </div>
+        <div class="form-group">
+          <label>Lead Status</label>
+          <select id="editLeadStatus">
+            <option value="New">New</option>
+            <option value="Contacted">Contacted</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Enrolled">Enrolled</option>
+            <option value="Lost">Lost</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Course Interest Category</label>
+          <select id="editLeadCategory">
+            <option value="Short Term (7D)">Short Term (7D)</option>
+            <option value="Advance (15D)">Advance (15D)</option>
+            <option value="Industrial (30D)">Industrial (30D)</option>
+            <option value="Job-Oriented">Job-Oriented</option>
+            <option value="Project/Dissertation">Project/Dissertation</option>
+            <option value="PhD Assistance">PhD Assistance</option>
+            <option value="Forensic Services">Forensic Services</option>
+            <option value="General Inquiry">General Inquiry</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Internal Agent Notes</label>
+          <textarea id="editLeadNotes" rows="3" placeholder="Add follow-up notes, student background, promised course dates..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelEdit">Cancel</button>
+        <button class="btn btn-primary" id="btnSaveLead">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Lab Visit Student -->
+  <div class="modal-overlay" id="modalAddLabVisit">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-vial-virus"></i> Register Lab Visit Student</h3>
+        <button class="close-btn" id="btnCloseLabVisitModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formAddLabVisit">
+          <div class="form-group">
+            <label>Student Full Name *</label>
+            <input type="text" id="labVisitName" placeholder="e.g. Rahul Sharma" required>
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Contact Number (10 Digits) *</label>
+            <input type="text" id="labVisitPhone" placeholder="e.g. 9876543210" required>
+            <small>Enter 10-digit Indian mobile number. System will automatically format with country code 91.</small>
+          </div>
+          <div class="form-group">
+            <label>Program / Course Interested</label>
+            <select id="labVisitCourse">
+              <option value="Short Term (7D)">Short Term Training (7 Days)</option>
+              <option value="Advance (15D)">Advance Biotech Training (15 Days)</option>
+              <option value="Industrial (30D)">Industrial Training (30 Days)</option>
+              <option value="Job-Oriented">Job-Oriented Training Program</option>
+              <option value="Project/Dissertation">Project / Dissertation</option>
+              <option value="PhD Assistance">PhD Assistance / Wet Lab</option>
+              <option value="Forensic Services">Forensic Services</option>
+              <option value="Lab Visit Only">Lab Tour / Visit Only</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date of Lab Visit</label>
+            <input type="date" id="labVisitDate">
+          </div>
+          <div class="form-group">
+            <label>Counselor / Visit Notes</label>
+            <textarea id="labVisitNotes" rows="3" placeholder="e.g. Visited lab today with parents, shown molecular biology & tissue culture labs. Interested in molecular biology batch next Monday."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelLabVisit">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitLabVisit">
+          <i class="fa-solid fa-paper-plane"></i> Save & Start 6-Day Drip
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Call Inquiry Student -->
+  <div class="modal-overlay" id="modalAddCallInquiry">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-phone-volume" style="color:#0284c7;"></i> Register Telephonic / Call Inquiry Student</h3>
+        <button class="close-btn" id="btnCloseCallInquiryModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formAddCallInquiry">
+          <div class="form-group">
+            <label>Student Full Name *</label>
+            <input type="text" id="callInquiryName" placeholder="e.g. Ankit Verma" required>
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Contact Number (10 Digits) *</label>
+            <input type="text" id="callInquiryPhone" placeholder="e.g. 9876543210" required>
+            <small>Enter 10-digit Indian mobile number. System will automatically format with country code 91.</small>
+          </div>
+          <div class="form-group">
+            <label>Program / Course Inquired</label>
+            <select id="callInquiryCourse">
+              <option value="Short Term (7D)">Short Term Training (7 Days)</option>
+              <option value="Advance (15D)" selected>Advance Biotech Training (15 Days)</option>
+              <option value="Industrial (30D)">Industrial Training (30 Days)</option>
+              <option value="Job-Oriented">Job-Oriented Training Program</option>
+              <option value="Project/Dissertation">Project / Dissertation</option>
+              <option value="PhD Assistance">PhD Assistance / Wet Lab</option>
+              <option value="Forensic Services">Forensic Services</option>
+              <option value="General Life Sciences">General Life Sciences Training</option>
+            </select>
+          </div>
+          <div class="form-row" style="display:flex; gap:12px;">
+            <div class="form-group" style="flex:1;">
+              <label>Drip Follow-Up Sequence</label>
+              <select id="callInquiryCampaignType">
+                <option value="inquiry">WhatsApp / Call Inquiry Sequence (Days 1–6)</option>
+                <option value="lab_visit">Lab Visit Walk-in Sequence (Days 1–6)</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label>First Message Schedule</label>
+              <select id="callInquiryScheduleMode">
+                <option value="tomorrow_morning">Tomorrow Morning (9:00 AM IST) - Recommended</option>
+                <option value="2_hours">In 2 Hours</option>
+                <option value="immediate">Send Immediately</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Date of Call Inquiry</label>
+            <input type="date" id="callInquiryDate">
+          </div>
+          <div class="form-group">
+            <label>Counselor Call Notes / Discussion Summary</label>
+            <textarea id="callInquiryNotes" rows="3" placeholder="e.g. Inquired about Advance Biotech batch starting next week. Discussed hands-on PCR protocols and fees. Asked to receive syllabus on WhatsApp."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelCallInquiry">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitCallInquiry" style="background:#0284c7; border-color:#0284c7;">
+          <i class="fa-solid fa-paper-plane"></i> Save & Start Drip Sequence
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Import Students to Drip from Excel -->
+  <div class="modal-overlay" id="modalDripImportExcel">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Bulk Import Students to Drip Campaigns from Excel</h3>
+        <button class="close-btn" id="btnCloseDripExcelModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <div style="font-weight:600; color:#1e293b; font-size:13px;"><i class="fa-solid fa-circle-info" style="color:#0284c7; margin-right:6px;"></i> Upload Excel Spreadsheet (.xlsx, .xls, .csv)</div>
+            <div style="font-size:12px; color:#64748b; margin-top:2px;">Upload student contact lists to enroll them automatically into scheduled WhatsApp drip follow-ups.</div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadDripSampleExcel" style="background:#fff; color:#107C41; border:1px solid #107C41; font-weight:600; padding:6px 12px; display:inline-flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-download"></i> Download Sample Excel
+          </button>
+        </div>
+
+        <div class="form-row" style="display:flex; gap:12px; margin-bottom:14px;">
+          <div class="form-group" style="flex:1;">
+            <label style="font-weight:600;">Select Drip Sequence *</label>
+            <select id="dripImportCampaignType" class="form-control">
+              <option value="inquiry">WhatsApp / Call Inquiry Sequence (Days 1–6)</option>
+              <option value="lab_visit">Lab Visit Walk-in Sequence (Days 1–6)</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label style="font-weight:600;">First Message Schedule *</label>
+            <select id="dripImportScheduleMode" class="form-control">
+              <option value="tomorrow_morning">Tomorrow Morning (9:00 AM IST) - Recommended</option>
+              <option value="2_hours">In 2 Hours</option>
+              <option value="immediate">Send Immediately (Next Cron Run)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- File Dropzone -->
+        <div class="dropzone" id="dripExcelDropzone" style="border:2px dashed #cbd5e1; border-radius:8px; padding:22px 16px; text-align:center; background:#f8fafc; cursor:pointer; margin-bottom:16px; transition:border-color 0.2s;">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px; color:#107C41; margin-bottom:8px;"></i>
+          <div style="font-weight:600; color:#334155;">Click to browse or drag & drop student Excel file</div>
+          <div style="font-size:12px; color:#64748b; margin-top:4px;">Supports .xlsx, .xls, .csv format (Auto-detects Name, Phone, Course, Notes)</div>
+          <input type="file" id="dripExcelFileInput" accept=".xlsx, .xls, .csv" style="display:none;">
+        </div>
+
+        <!-- Column Mapping Configuration (Shows after file is chosen) -->
+        <div id="dripExcelMappingSection" style="display:none; background:#f1f5f9; border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+          <div style="font-weight:600; font-size:13px; color:#1e293b; margin-bottom:10px;">
+            <i class="fa-solid fa-table-columns" style="color:#2563eb; margin-right:6px;"></i> Match Excel Columns
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:11px; font-weight:600;">Student Name *</label>
+              <select id="dripExcelNameCol" class="form-control" style="font-size:12px;"></select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:11px; font-weight:600;">Mobile Number *</label>
+              <select id="dripExcelPhoneCol" class="form-control" style="font-size:12px;"></select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:11px; font-weight:600;">Course / Subject (Optional)</label>
+              <select id="dripExcelCourseCol" class="form-control" style="font-size:12px;"></select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:11px; font-weight:600;">Notes / Remarks (Optional)</label>
+              <select id="dripExcelNotesCol" class="form-control" style="font-size:12px;"></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Preview Table -->
+        <div id="dripExcelPreviewSection" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="font-weight:600; font-size:13px; color:#1e293b;">
+              <i class="fa-solid fa-eye" style="color:#059669; margin-right:6px;"></i> Preview Students to Enroll
+            </div>
+            <div id="dripExcelSummaryBadge" style="font-size:12px; font-weight:600; color:#059669; background:#ecfdf5; padding:4px 8px; border-radius:4px; border:1px solid #a7f3d0;">
+              0 Valid Students Found
+            </div>
+          </div>
+          <div class="table-container" style="max-height:180px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:6px;">
+            <table class="data-table" style="font-size:12px; width:100%;">
+              <thead>
+                <tr>
+                  <th style="padding:6px 10px;">#</th>
+                  <th style="padding:6px 10px;">Student Name</th>
+                  <th style="padding:6px 10px;">Phone (Cleaned)</th>
+                  <th style="padding:6px 10px;">Course</th>
+                  <th style="padding:6px 10px;">Notes</th>
+                </tr>
+              </thead>
+              <tbody id="dripExcelPreviewBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelDripExcel">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitDripExcelImport" disabled style="background:#107C41; border-color:#107C41; font-weight:600;">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Import & Enroll Students in Drip
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Drip Template -->
+  <div class="modal-overlay" id="modalEditTemplate">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-pen-to-square"></i> Edit Drip Message Template</h3>
+        <button class="close-btn" id="btnCloseEditTemplate">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formEditTemplate">
+          <input type="hidden" id="editTemplateId">
+          <div class="form-group">
+            <label>Step & Title</label>
+            <input type="text" id="editTemplateTitle" required>
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Message Content (No asterisks/stars - Clean Professional Format)</label>
+            <textarea id="editTemplateMessage" rows="9" required></textarea>
+            <small>Placeholder: <code>{name}</code> will be replaced with candidate's first name. Ensure clean professional formatting.</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelEditTemplate">Cancel</button>
+        <button class="btn btn-primary" id="btnSaveTemplate">
+          <i class="fa-solid fa-floppy-disk"></i> Save Template
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Register Institutional / Workshop Inquiry -->
+  <div class="modal-overlay" id="modalAddInstitution">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-building-columns"></i> Register College / Workshop Inquiry</h3>
+        <button class="close-btn" id="btnCloseInstModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formAddInstitution">
+          <div class="form-group">
+            <label>College / University Name *</label>
+            <input type="text" id="instCollegeName" placeholder="e.g. Amity University / Jamia Millia" required>
+          </div>
+          <div class="form-group">
+            <label>Faculty Coordinator / Contact Person *</label>
+            <input type="text" id="instFacultyName" placeholder="e.g. Dr. Rajesh Verma (HOD Biotech)" required>
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Contact Number (10 Digits) *</label>
+            <input type="text" id="instPhone" placeholder="e.g. 9876543210" required>
+            <small>Enter 10-digit Indian mobile number. System automatically formats with +91 country code.</small>
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <input type="text" id="instDepartment" placeholder="e.g. Biotechnology / Microbiology / Life Sciences">
+          </div>
+          <div class="form-group">
+            <label>Workshop Topic / Domain of Interest</label>
+            <input type="text" id="instWorkshopTopic" placeholder="e.g. Hands-on Molecular Biology & CRISPR Techniques">
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label>Estimated Students</label>
+              <input type="number" id="instEstimatedStudents" placeholder="e.g. 50">
+            </div>
+            <div class="form-group">
+              <label>Preferred Date / Month</label>
+              <input type="text" id="instPreferredDate" placeholder="e.g. Mid May 2026">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Initial Status</label>
+            <select id="instStatus">
+              <option value="Inquiry">Inquiry</option>
+              <option value="Proposal Sent">Proposal Sent</option>
+              <option value="MoU Signed">MoU Signed</option>
+              <option value="Scheduled">Scheduled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Discussion Notes</label>
+            <textarea id="instNotes" rows="3" placeholder="Add coordinator details, MoU requirements, college lab facilities..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelInstModal">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitInstitution">
+          <i class="fa-solid fa-floppy-disk"></i> Save Institution
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: View Campaign Logs -->
+  <div class="modal-overlay" id="modalCampaignLogs">
+    <div class="modal-card" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 id="campaignLogsModalTitle"><i class="fa-solid fa-list-check"></i> Campaign Delivery Logs</h3>
+        <button class="close-btn" id="btnCloseCampaignLogsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="table-container" style="max-height: 400px; overflow-y:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Recipient Name</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Time (IST)</th>
+                <th>Error Details</th>
+              </tr>
+            </thead>
+            <tbody id="campaignLogsTableBody">
+              <tr>
+                <td colspan="5" class="text-center">Loading delivery logs...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCloseCampaignLogs">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit College Faculty Contact -->
+  <div class="modal-overlay" id="modalAddFaculty">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="facultyModalTitle"><i class="fa-solid fa-chalkboard-user"></i> Add College Faculty Contact</h3>
+        <button class="close-btn" id="btnCloseFacultyModal" onclick="closeAddFacultyModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formAddFaculty">
+          <input type="hidden" id="facEditId" value="">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label>Faculty Name *</label>
+              <input type="text" id="facName" placeholder="e.g. Dr. Rajesh Sharma" required>
+            </div>
+            <div class="form-group">
+              <label>Designation</label>
+              <input type="text" id="facDesignation" placeholder="e.g. Professor & HOD / Asst. Prof">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>College / University Name *</label>
+            <input type="text" id="facCollege" placeholder="e.g. Amity University / Jamia Millia Islamia" required>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label>Department</label>
+              <input type="text" id="facDepartment" placeholder="e.g. Biotechnology / Microbiology">
+            </div>
+            <div class="form-group">
+              <label>WhatsApp Number (10 Digits) *</label>
+              <input type="text" id="facPhone" placeholder="e.g. 9876543210" required>
+              <small>System will automatically format with +91 country code.</small>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="facEmail" placeholder="e.g. rajesh.sharma@college.edu.in">
+            </div>
+            <div class="form-group">
+              <label>City / State</label>
+              <input type="text" id="facCity" placeholder="e.g. New Delhi, Delhi">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Faculty Notes / Research Area</label>
+            <textarea id="facNotes" rows="3" placeholder="Research interest, previous workshop coordinator, preferred communication time..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelFacultyModal" onclick="closeAddFacultyModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btnSubmitFaculty">
+          <i class="fa-solid fa-floppy-disk"></i> Save Faculty Contact
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Start New Chat from WhatsApp Contacts -->
+  <div class="modal-overlay" id="modalNewChatFromContacts">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 style="display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-address-book" style="color: #25D366;"></i> Start New Chat from Contacts</h3>
+        <button class="close-btn" id="btnCloseNewChatModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 12px;">
+          Search or pick any of your 3,100+ phone contacts to start messaging them immediately:
+        </p>
+        <div style="position:relative; margin-bottom: 14px;">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:12px; top:11px; color:#94A3B8;"></i>
+          <input type="text" id="newChatContactSearchInput" placeholder="Search contact name or phone number..." style="width:100%; padding:9px 12px 9px 34px; border:1px solid #CBD5E1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+        </div>
+        <div id="newChatContactsList" style="max-height: 380px; overflow-y:auto; border:1px solid #E2E8F0; border-radius:8px; background:#fff;">
+          <div style="padding: 24px; text-align:center; color:#94A3B8;">Loading contacts...</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelNewChatModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Talk to Team (Option 6) Full Call Directory -->
+  <div class="modal-overlay" id="modalTalkToTeam">
+    <div class="modal-card" style="max-width: 980px; width: 95%;">
+      <div class="modal-header" style="background:#FFF1F2; border-bottom:1px solid #FECDD3;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:38px; height:38px; border-radius:8px; background:#E11D48; color:white; display:flex; align-items:center; justify-content:center; font-size:18px;">
+            <i class="fa-solid fa-phone-volume"></i>
+          </div>
+          <div>
+            <h3 style="margin:0; font-size:16px; font-weight:700; color:#9F1239;">Students Opted to Talk to Our Team (Option 6)</h3>
+            <span style="font-size:12px; color:#BE123C;">Direct phone callback list — Click 'Call Now' to dial student immediately from your mobile or PC</span>
+          </div>
+        </div>
+        <button class="close-btn" id="btnCloseTalkToTeamModal" onclick="closeTalkToTeamModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px 20px;">
+        <!-- Filter Toolbar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
+          <div style="display:flex; gap:10px; flex:1; min-width:280px;">
+            <div style="position:relative; flex:1;">
+              <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:10px; color:#94A3B8; font-size:13px;"></i>
+              <input type="text" id="talkToTeamSearchInput" placeholder="Search by student name, phone or message..." style="width:100%; padding:8px 12px 8px 30px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px; box-sizing:border-box;">
+            </div>
+            <select id="talkToTeamStatusFilter" style="padding:8px 12px; border:1px solid #CBD5E1; border-radius:6px; font-size:13px;">
+              <option value="All">All Call Statuses</option>
+              <option value="New">Pending Call (New)</option>
+              <option value="Called">Called (Attempted / Left Msg)</option>
+              <option value="Connected">Connected (Spoke with Student)</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Enrolled">Enrolled</option>
+              <option value="Not Interested">Not Interested</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="exportTalkToTeamToExcel()">
+              <i class="fa-solid fa-file-excel" style="color:#107C41;"></i> Export to Excel (.xlsx)
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="fetchTalkToTeamLeads()">
+              <i class="fa-solid fa-rotate"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container" style="max-height: 480px; overflow-y:auto; border:1px solid #E2E8F0; border-radius:8px;">
+          <table class="data-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="width:16%;">Student Name</th>
+                <th style="width:16%;">Phone Number</th>
+                <th style="width:12%;">Requested Time</th>
+                <th style="width:12%;">Course Category</th>
+                <th style="width:15%;">Call Status</th>
+                <th style="width:17%;">Discussion Notes</th>
+                <th style="width:12%; text-align:center;">Direct Action</th>
+              </tr>
+            </thead>
+            <tbody id="talkToTeamTableBody">
+              <tr>
+                <td colspan="7" class="text-center" style="padding:24px; color:#94A3B8;">Loading students...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <span id="talkToTeamTotalSummary" style="font-size:13px; font-weight:600; color:#475569;">Total: 0 students</span>
+        <button type="button" class="btn btn-secondary" onclick="closeTalkToTeamModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Log Call & Discussion Note -->
+  <div class="modal-overlay" id="modalCallNote">
+    <div class="modal-card" style="max-width: 580px; width: 95%;">
+      <div class="modal-header" style="background:#F0FDF4; border-bottom:1px solid #DCFCE7;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:38px; height:38px; border-radius:8px; background:#16a34a; color:white; display:flex; align-items:center; justify-content:center; font-size:18px;">
+            <i class="fa-solid fa-phone-volume"></i>
+          </div>
+          <div>
+            <h3 style="margin:0; font-size:16px; font-weight:700; color:#14532D;" id="callNoteModalTitle">Log Call & Discussion Note</h3>
+            <span style="font-size:12px; color:#15803D;" id="callNoteModalSubtitle">Record student conversation summary</span>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeCallNoteModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:18px 20px;">
+        <input type="hidden" id="callNoteLeadId" value="">
+        
+        <!-- Student Quick Card with Call Button -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #E2E8F0; padding:12px 14px; border-radius:8px; margin-bottom:16px;">
+          <div>
+            <div style="font-weight:700; font-size:15px; color:#1E293B;" id="callNoteStudentName">Student Name</div>
+            <div style="font-size:13px; color:#64748B; margin-top:2px;" id="callNoteStudentPhone">+91XXXXXXXXXX</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a href="#" id="callNoteDirectCallBtn" class="btn btn-sm btn-primary" style="background:#16a34a; border-color:#16a34a; color:#fff; text-decoration:none; padding:6px 12px; font-weight:700;">
+              <i class="fa-solid fa-phone"></i> Call Now
+            </a>
+            <button type="button" id="callNoteDirectChatBtn" class="btn btn-sm btn-secondary" style="padding:6px 10px;">
+              <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Call Status Dropdown -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label style="font-weight:600; font-size:13px; margin-bottom:6px; display:block;">Call Status *</label>
+          <select id="callNoteStatusSelect" style="width:100%; padding:9px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:14px; font-weight:600; background:#fff;">
+            <option value="New">Pending Call (New)</option>
+            <option value="Called">Called (Attempted / Left Message)</option>
+            <option value="Connected">Connected (Spoke with Student)</option>
+            <option value="In Progress">In Progress (Considering Batch / Awaiting Fee)</option>
+            <option value="Enrolled">Enrolled (Confirmed Registration)</option>
+            <option value="Not Interested">Not Interested / Cancelled</option>
+          </select>
+        </div>
+
+        <!-- Quick Tags / Shortcuts -->
+        <div style="margin-bottom:12px;">
+          <span style="font-size:11px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px;">Quick Note Tags (Click to insert):</span>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="appendCallNoteTag('Connected & interested in batch')">+ Connected & Interested</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="appendCallNoteTag('Call not answered / Switched off')">+ Not Picked / Switched Off</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="appendCallNoteTag('Fees structure and batch dates shared')">+ Fees & Dates Shared</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="appendCallNoteTag('Syllabus PDF shared on WhatsApp')">+ Syllabus Shared</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="appendCallNoteTag('Will visit Noida lab for counseling')">+ Will Visit Lab</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="appendCallNoteTag('Follow up tomorrow')">+ Callback Tomorrow</button>
+          </div>
+        </div>
+
+        <!-- Discussion Notes Textarea -->
+        <div class="form-group">
+          <label style="font-weight:600; font-size:13px; margin-bottom:6px; display:block;">Discussion Notes / What Did You Talk About?</label>
+          <textarea id="callNoteTextarea" rows="4" placeholder="e.g. Spoke with student at 11:30 AM. Interested in 15-day Advance Biotech training. Discussed PCR modules and fees. Asked to share syllabus on WhatsApp. Follow up on Monday." style="width:100%; padding:10px 12px; border:1px solid #CBD5E1; border-radius:8px; font-size:13px; box-sizing:border-box; line-height:1.4;"></textarea>
+          <small style="color:#64748B; font-size:11px; display:block; margin-top:4px;">These notes will stay permanently saved with this student so the entire counseling team can remember what was discussed.</small>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <span id="callNoteSaveStatus" style="font-size:12px; color:#16a34a; font-weight:600;"></span>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeCallNoteModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnSaveCallNote" onclick="saveCallNote()" style="background:#16a34a; border-color:#16a34a;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Note & Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="xlsx.full.min.js"></script>
+  <script src="app.js?v=4.0"></script>
+</body>
+</html>
