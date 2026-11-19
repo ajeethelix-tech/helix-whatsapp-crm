@@ -470,57 +470,97 @@
 
         <!-- Drip Navigation & Action Header -->
         <div class="card margin-top">
-          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-            <div class="drip-subnav">
-              <button class="btn-subnav active" id="btnSubtabQueue" data-subtab="queue">
-                <i class="fa-solid fa-list-check"></i> Active Queue
-              </button>
-              <button class="btn-subnav" id="btnSubtabLabVisits" data-subtab="labvisits">
-                <i class="fa-solid fa-vial-virus" style="color: #059669;"></i> Lab Visited Students
-                <span class="badge" id="badgeLabVisitCount" style="margin-left: 6px; background: #059669; color: white;">0</span>
-              </button>
-              <button class="btn-subnav" id="btnSubtabCallInquiries" data-subtab="callinquiries">
-                <i class="fa-solid fa-phone-volume" style="color: #0284c7;"></i> Call Inquiry Students
-                <span class="badge" id="badgeCallInquiryCount" style="margin-left: 6px; background: #0284c7; color: white;">0</span>
-              </button>
-              <button class="btn-subnav" id="btnSubtabLogs" data-subtab="logs">
-                <i class="fa-solid fa-clock-rotate-left"></i> Sent Messages Log
-              </button>
-              <button class="btn-subnav" id="btnSubtabTemplates" data-subtab="templates">
-                <i class="fa-solid fa-pen-ruler"></i> Sequence Templates
-              </button>
-              <button class="btn-subnav" id="btnSubtabConsent" data-subtab="consent" style="color: #059669; font-weight: 700;">
-                <i class="fa-solid fa-user-check" style="color: #10B981;"></i> Student Interest &amp; Consent
-                <span class="badge" id="badgeConsentInterested" style="margin-left: 6px; background: #10B981; color: white;">0</span>
-                <span class="badge" id="badgeConsentNotInterested" style="margin-left: 4px; background: #EF4444; color: white;">0</span>
-              </button>
-              <button class="btn-subnav" id="btnSubtabStopDrip" data-subtab="stopdrip" style="color: #DC2626; font-weight: 700;">
-                <i class="fa-solid fa-power-off" style="color: #DC2626;"></i> Stop / Master Control
-              </button>
+          <div class="card-header" style="display:flex; flex-direction:column; gap:12px; padding:14px 18px;">
+            <!-- Top Row: Clean Sub-Tab Navigation -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <div class="drip-subnav" style="display:flex; flex-wrap:wrap; gap:6px;">
+                <button class="btn-subnav active" id="btnSubtabQueue" data-subtab="queue">
+                  <i class="fa-solid fa-list-check"></i> Active Queue
+                </button>
+                <button class="btn-subnav" id="btnSubtabLabVisits" data-subtab="labvisits">
+                  <i class="fa-solid fa-vial-virus" style="color: #059669;"></i> Lab Visited Students
+                  <span class="badge" id="badgeLabVisitCount" style="margin-left: 6px; background: #059669; color: white;">0</span>
+                </button>
+                <button class="btn-subnav" id="btnSubtabCallInquiries" data-subtab="callinquiries">
+                  <i class="fa-solid fa-phone-volume" style="color: #0284c7;"></i> Call Inquiry Students
+                  <span class="badge" id="badgeCallInquiryCount" style="margin-left: 6px; background: #0284c7; color: white;">0</span>
+                </button>
+                <button class="btn-subnav" id="btnSubtabLogs" data-subtab="logs">
+                  <i class="fa-solid fa-clock-rotate-left"></i> Sent Messages Log
+                </button>
+                <button class="btn-subnav" id="btnSubtabTemplates" data-subtab="templates">
+                  <i class="fa-solid fa-pen-ruler"></i> Sequence Templates
+                </button>
+                <button class="btn-subnav" id="btnSubtabConsent" data-subtab="consent" style="color: #059669; font-weight: 700;">
+                  <i class="fa-solid fa-user-check" style="color: #10B981;"></i> Student Interest &amp; Consent
+                  <span class="badge" id="badgeConsentInterested" style="margin-left: 6px; background: #10B981; color: white;">0</span>
+                  <span class="badge" id="badgeConsentNotInterested" style="margin-left: 4px; background: #EF4444; color: white;">0</span>
+                </button>
+                <button class="btn-subnav" id="btnSubtabStopDrip" data-subtab="stopdrip" style="color: #64748b; font-weight: 600;">
+                  <i class="fa-solid fa-sliders"></i> Master Control
+                </button>
+              </div>
             </div>
 
-            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <button type="button" class="btn btn-danger btn-sm" id="btnHeaderStopAllDrip" title="Stop or Resume all automated drip follow-up campaigns" style="background:#DC2626; border-color:#DC2626; color:#fff; font-weight:700; padding:7px 14px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 3px rgba(220,38,38,0.25);">
-                <i class="fa-solid fa-circle-stop"></i> Stop All Drip Campaigns
-              </button>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnExportConsentExcelTop" title="Export All Student Consent &amp; Interest Data to Excel (.csv)" style="background:#fff; color:#059669; border:1px solid #10B981; font-weight:600; padding:7px 12px; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-file-excel"></i> Export Consent Data
-              </button>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnOpenDripExcelModal" title="Import students directly from Excel sheet into Drip Campaign" style="background:#f0fdf4; color:#166534; border:1px solid #86efac; font-weight:600; padding:7px 13px; display:inline-flex; align-items:center; gap:7px;">
-                <i class="fa-solid fa-file-excel" style="color: #16a34a; font-size: 15px;"></i> Import from Excel
-              </button>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnExportLabVisitsExcelTop" title="Export Lab Visited Students directly to Excel (.xlsx)" style="background:#fff; color:#107C41; border:1px solid #107C41; font-weight:600; padding:7px 12px; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-file-excel"></i> Export Lab Visits Excel
-              </button>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnExportCallInquiriesExcelTop" title="Export Call Inquiry Students directly to Excel (.xlsx)" style="background:#fff; color:#0284c7; border:1px solid #0284c7; font-weight:600; padding:7px 12px; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-file-excel"></i> Export Call Inquiries Excel
-              </button>
-              <button class="btn btn-primary" id="btnOpenAddCallInquiry" style="background:#0284c7; border-color:#0284c7; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-phone-volume"></i> Add Call Inquiry Student
-              </button>
-              <button class="btn btn-primary" id="btnOpenAddLabVisit" style="display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-user-plus"></i> Add Lab Visit Student
-              </button>
+            <!-- Bottom Row: Unified Professional Action Bar -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding-top:10px; border-top:1px solid #f1f5f9;">
+              <!-- Left: Student Creation & Import -->
+              <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+                <button class="btn btn-primary btn-sm" id="btnOpenAddCallInquiry" style="background:#0284c7; border-color:#0284c7; font-weight:600; padding:7px 14px; display:inline-flex; align-items:center; gap:6px;">
+                  <i class="fa-solid fa-phone-volume"></i> Add Call Inquiry
+                </button>
+                <button class="btn btn-primary btn-sm" id="btnOpenAddLabVisit" style="font-weight:600; padding:7px 14px; display:inline-flex; align-items:center; gap:6px;">
+                  <i class="fa-solid fa-user-plus"></i> Add Lab Visit
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnOpenDripExcelModal" title="Import students directly from Excel sheet" style="background:#f8fafc; color:#166534; border:1px solid #cbd5e1; font-weight:600; padding:7px 13px; display:inline-flex; align-items:center; gap:6px;">
+                  <i class="fa-solid fa-file-arrow-up" style="color:#16a34a;"></i> Import Excel
+                </button>
+              </div>
+
+              <!-- Right: Preview 1st Drip Button & Unified Export Dropdown -->
+              <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+                <!-- Preview & Test 1st Drip Message Button -->
+                <button type="button" class="btn btn-secondary btn-sm" id="btnPreviewDripChoiceMsg" onclick="openDripChoicePreviewModal()" style="background:#F0FDF4; border:1px solid #86EFAC; color:#166534; font-weight:700; padding:7px 14px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="Preview and test Day 1 Drip message with Interested/Not Interested buttons">
+                  <i class="fa-solid fa-eye" style="color:#16A34A;"></i> Preview 1st Drip (Opt-In/Out)
+                </button>
+
+                <!-- Unified Export Dropdown -->
+                <div class="dropdown" style="position:relative; display:inline-block;" id="dripExportDropdownWrap">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnDripExportDropdown" onclick="toggleDripExportDropdown(event)" style="background:#fff; border:1px solid #cbd5e1; color:#0f172a; font-weight:600; padding:7px 14px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                    <i class="fa-solid fa-file-excel" style="color:#107C41;"></i> Export Reports <i class="fa-solid fa-chevron-down" style="font-size:10px; color:#64748b;"></i>
+                  </button>
+                  <div class="dropdown-menu" id="dripExportDropdownMenu" style="display:none; position:absolute; right:0; top:calc(100% + 4px); background:#fff; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.12); min-width:240px; z-index:100; padding:6px 0;">
+                    <a href="javascript:void(0)" class="dropdown-item" id="btnExportConsentExcelTop" style="display:flex; align-items:center; gap:10px; padding:9px 16px; font-size:12px; color:#1e293b; text-decoration:none;">
+                      <i class="fa-solid fa-user-check" style="color:#10B981; font-size:14px; width:16px;"></i>
+                      <div>
+                        <div style="font-weight:600;">Student Interest &amp; Consent</div>
+                        <div style="font-size:11px; color:#64748b;">Interested vs Opt-out list (.csv)</div>
+                      </div>
+                    </a>
+                    <a href="javascript:void(0)" class="dropdown-item" id="btnExportLabVisitsExcelTop" style="display:flex; align-items:center; gap:10px; padding:9px 16px; font-size:12px; color:#1e293b; text-decoration:none;">
+                      <i class="fa-solid fa-vial-virus" style="color:#059669; font-size:14px; width:16px;"></i>
+                      <div>
+                        <div style="font-weight:600;">Lab Visited Students</div>
+                        <div style="font-size:11px; color:#64748b;">Walk-in student directory (.xlsx)</div>
+                      </div>
+                    </a>
+                    <a href="javascript:void(0)" class="dropdown-item" id="btnExportCallInquiriesExcelTop" style="display:flex; align-items:center; gap:10px; padding:9px 16px; font-size:12px; color:#1e293b; text-decoration:none;">
+                      <i class="fa-solid fa-phone-volume" style="color:#0284c7; font-size:14px; width:16px;"></i>
+                      <div>
+                        <div style="font-weight:600;">Call Inquiry Students</div>
+                        <div style="font-size:11px; color:#64748b;">Telephonic callers directory (.xlsx)</div>
+                      </div>
+                    </a>
+                    <a href="javascript:void(0)" class="dropdown-item" onclick="window.location.href='/api/export/drip-logs'" style="display:flex; align-items:center; gap:10px; padding:9px 16px; font-size:12px; color:#1e293b; text-decoration:none; border-top:1px solid #f1f5f9;">
+                      <i class="fa-solid fa-clock-rotate-left" style="color:#64748b; font-size:14px; width:16px;"></i>
+                      <div>
+                        <div style="font-weight:600;">All Sent Drip Logs</div>
+                        <div style="font-size:11px; color:#64748b;">Full automated dispatch history</div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2653,5 +2693,75 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="xlsx.full.min.js"></script>
   <script src="app.js?v=4.0"></script>
+  <!-- MODAL: PREVIEW & TEST 1ST DRIP MESSAGE (WITH INTERESTED / NOT INTERESTED CHOICES) -->
+  <div class="modal-overlay" id="modalDripChoicePreview">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header" style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:36px; height:36px; border-radius:8px; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; font-size:16px;">
+            <i class="fa-brands fa-whatsapp"></i>
+          </div>
+          <div>
+            <h3 style="margin:0; font-size:15px; font-weight:700; color:#0f172a;">Day 1 Drip Message Preview</h3>
+            <span style="font-size:12px; color:#64748b;">Includes interactive INTERESTED / NOT INTERESTED choices</span>
+          </div>
+        </div>
+        <button type="button" class="close-btn" onclick="closeDripChoicePreviewModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:18px 20px;">
+        <!-- Simulated WhatsApp Message Container -->
+        <div style="background:#EFEAE2; border-radius:10px; padding:16px; margin-bottom:16px; border:1px solid #E2D9C8;">
+          <div style="background:#FFFFFF; border-radius:8px; padding:14px 16px; box-shadow:0 1px 2px rgba(0,0,0,0.1); max-width:94%; margin-left:auto; font-size:13px; line-height:1.5; color:#111B21;">
+            <div style="font-weight:600; color:#0f172a; margin-bottom:6px;">Hello <span id="previewDripStudentName">Ajeet Singh</span>,</div>
+            <div style="color:#334155; margin-bottom:10px;">
+              Thank you for reaching out to Helix BioFast Labs regarding our training programs. We offer comprehensive hands-on modules in Molecular Biology, Genetic Engineering, Tissue Culture, and Medical Biotechnology.<br><br>
+              Could you share which area or duration you are most interested in?<br><br>
+              Helix BioFast Labs<br>
+              www.helixbiofastlabs.com
+            </div>
+            
+            <!-- Interactive Action Box -->
+            <div style="border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
+              <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:6px;">
+                Student Response Actions:
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div style="background:#F0FDF4; border:1px solid #86EFAC; color:#166534; padding:8px 12px; border-radius:6px; font-weight:600; display:flex; align-items:center; gap:8px;">
+                  <span style="color:#16A34A; font-size:15px;">👉</span> Reply <strong>"INTERESTED"</strong> to receive batch dates, syllabus &amp; fee structure.
+                </div>
+                <div style="background:#FEF2F2; border:1px solid #FECACA; color:#991B1B; padding:8px 12px; border-radius:6px; font-weight:600; display:flex; align-items:center; gap:8px;">
+                  <span style="color:#DC2626; font-size:15px;">👉</span> Reply <strong>"NOT INTERESTED"</strong> or <strong>"STOP"</strong> to unsubscribe.
+                </div>
+              </div>
+            </div>
+            <div style="text-align:right; font-size:10.5px; color:#667781; margin-top:6px;">1:00 pm &#10003;&#10003;</div>
+          </div>
+        </div>
+
+        <!-- Live WhatsApp Test Dispatch Box -->
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:14px;">
+          <label style="display:block; font-size:12.5px; font-weight:700; color:#1e293b; margin-bottom:6px;">
+            <i class="fa-brands fa-whatsapp" style="color:#22C55E;"></i> Send Live Test to WhatsApp
+          </label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="testDripTargetPhone" placeholder="Enter WhatsApp phone (e.g. 918383897225)" style="flex:1; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+            <button type="button" class="btn btn-primary" id="btnSendTestDripMessage" onclick="sendTestDripMessageNow()" style="background:#0284c7; border-color:#0284c7; padding:8px 16px; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-paper-plane"></i> Send Test Now
+            </button>
+          </div>
+          <div id="testDripStatusMsg" style="margin-top:8px; font-size:12px; display:none;"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; color:#64748b;">
+          <i class="fa-solid fa-shield-halved" style="color:#10B981;"></i> Students replying NOT INTERESTED are automatically removed from future drips.
+        </span>
+        <button type="button" class="btn btn-secondary" onclick="closeDripChoicePreviewModal()">Close Preview</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

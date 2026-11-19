@@ -2325,6 +2325,32 @@ app.post('/api/drip/subscribers/:id/restore', async (req, res) => {
   }
 });
 
+// Test Send Day 1 Drip Message directly to any phone
+app.post('/api/drip/test-send', async (req, res) => {
+  try {
+    const rawPhone = req.body.phone;
+    if (!rawPhone) return res.status(400).json({ error: 'WhatsApp phone number is required.' });
+    if (!sock || !connected) return res.status(400).json({ error: 'WhatsApp is not connected! Please scan QR code in Settings.' });
+
+    const cleanPhone = db.normalizeIndianPhone(rawPhone);
+    const targetChatId = cleanPhone.includes('@') ? cleanPhone : cleanPhone + '@s.whatsapp.net';
+
+    const templates = await db.getDripTemplates('inquiry');
+    const template = templates.find(t => t.day_number === 1) || {
+      title: 'Day 1 Training Overview',
+      message: 'Hello {name},\n\nThank you for reaching out to Helix BioFast Labs regarding our training programs. We offer comprehensive hands-on modules in Molecular Biology, Genetic Engineering, Tissue Culture, and Medical Biotechnology.\n\nCould you share which area or duration you are most interested in?\n\nHelix BioFast Labs\nwww.helixbiofastlabs.com'
+    };
+
+    const dummySub = { name: 'Candidate', category: 'General Inquiry' };
+    const messageText = buildProgramSpecificDripMessage(dummySub, 1, template);
+
+    await sendAndStoreMessage(sock, targetChatId, { text: messageText });
+    res.json({ success: true, targetChatId, messageText });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/drip/subscribers/:id/send-now', async (req, res) => {
   try {
     const { id } = req.params;

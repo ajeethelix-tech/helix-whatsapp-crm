@@ -3416,6 +3416,15 @@ function renderDripTemplates() {
         </div>
         <div class="template-title">${escapeHtml(t.title)}</div>
         <div class="template-body">${escapeHtml(t.message)}</div>
+        <div class="template-interactive-box" style="margin-top:10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:10px 12px;">
+          <div style="font-size:11px; font-weight:700; color:#166534; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-toggle-on" style="color:#16a34a;"></i> Interactive Choices Appended to WhatsApp:
+          </div>
+          <div style="margin-top:4px; font-size:11.5px; color:#1e293b; line-height:1.4;">
+            👉 Reply <strong>"INTERESTED"</strong> to receive batch dates, syllabus &amp; fee structure.<br>
+            👉 Reply <strong>"NOT INTERESTED"</strong> or <strong>"STOP"</strong> to unsubscribe.
+          </div>
+        </div>
         <div class="template-footer">
           <span>Variables: <code>{name}</code></span>
           <button class="btn btn-secondary btn-sm" onclick="openEditTemplateModal(${t.id})">
@@ -6015,3 +6024,82 @@ async function toggleStudentConsent(chatId, phone, action, reason = null) {
   }
 }
 window.toggleStudentConsent = toggleStudentConsent;
+
+
+// DRIP EXPORT DROPDOWN & PREVIEW MODAL HELPERS
+function toggleDripExportDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('dripExportDropdownMenu');
+  if (!menu) return;
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('dripExportDropdownWrap');
+  const menu = document.getElementById('dripExportDropdownMenu');
+  if (menu && wrap && !wrap.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+function openDripChoicePreviewModal() {
+  const modal = document.getElementById('modalDripChoicePreview');
+  if (modal) modal.classList.add('active');
+  const input = document.getElementById('testDripTargetPhone');
+  if (input && !input.value) {
+    input.value = '918383897225';
+  }
+}
+
+function closeDripChoicePreviewModal() {
+  const modal = document.getElementById('modalDripChoicePreview');
+  if (modal) modal.classList.remove('active');
+  const status = document.getElementById('testDripStatusMsg');
+  if (status) status.style.display = 'none';
+}
+
+async function sendTestDripMessageNow() {
+  const input = document.getElementById('testDripTargetPhone');
+  const status = document.getElementById('testDripStatusMsg');
+  const btn = document.getElementById('btnSendTestDripMessage');
+  const phone = input ? input.value.trim() : '';
+
+  if (!phone) {
+    alert('Please enter a WhatsApp phone number to receive the test message.');
+    return;
+  }
+
+  if (status) {
+    status.style.display = 'block';
+    status.style.color = '#0284c7';
+    status.textContent = 'Sending test Day 1 drip message to ' + phone + '...';
+  }
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/drip/test-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      if (status) {
+        status.style.color = '#15803d';
+        status.textContent = 'Test drip message sent successfully to ' + phone + '! Check your WhatsApp.';
+      }
+    } else {
+      if (status) {
+        status.style.color = '#dc2626';
+        status.textContent = 'Failed to send test: ' + (data.error || 'Unknown error');
+      }
+    }
+  } catch (err) {
+    if (status) {
+      status.style.color = '#dc2626';
+      status.textContent = 'Network error: ' + err.message;
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
