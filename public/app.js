@@ -6047,7 +6047,7 @@ function openDripChoicePreviewModal() {
   if (modal) modal.classList.add('active');
   const input = document.getElementById('testDripTargetPhone');
   if (input && !input.value) {
-    input.value = '918383897225';
+    input.value = '8920607910';
   }
 }
 

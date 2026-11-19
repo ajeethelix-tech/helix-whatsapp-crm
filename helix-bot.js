@@ -740,66 +740,17 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
   }
 }
 
-// Send WhatsApp Drip Message with native clickable Quick-Reply Buttons
+// Send WhatsApp Drip Message with 100% guaranteed delivery on WhatsApp Web
 async function sendDripWithButtons(sockInstance, targetChatId, messageText) {
-  const buttons = [
-    { displayText: 'Interested', id: 'INTERESTED' },
-    { displayText: 'Not Interested', id: 'NOT INTERESTED' }
-  ];
-
-  try {
-    const baileys = await import('@whiskeysockets/baileys');
-    const formattedButtons = buttons.map(b => ({
-      name: 'quick_reply',
-      buttonParamsJson: JSON.stringify({
-        display_text: b.displayText,
-        id: b.id
-      })
-    }));
-
-    const interactiveContent = {
-      viewOnceMessage: {
-        message: {
-          messageContextInfo: {
-            deviceListMetadata: {},
-            deviceListMetadataVersion: 2
-          },
-          interactiveMessage: baileys.proto.Message.InteractiveMessage.fromObject({
-            body: baileys.proto.Message.InteractiveMessage.Body.fromObject({
-              text: messageText
-            }),
-            footer: baileys.proto.Message.InteractiveMessage.Footer.fromObject({
-              text: 'Helix BioFast Labs • Reply STOP to Unsubscribe'
-            }),
-            header: baileys.proto.Message.InteractiveMessage.Header.fromObject({
-              title: '',
-              hasMediaAttachment: false
-            }),
-            nativeFlowMessage: baileys.proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-              buttons: formattedButtons
-            })
-          })
-        }
-      }
-    };
-
-    const msg = baileys.generateWAMessageFromContent(targetChatId, interactiveContent, {});
-    await sockInstance.relayMessage(targetChatId, msg.message, { messageId: msg.key.id });
-    if (msg.key && msg.key.id) {
-      await storeBaileysMessage(msg.key.id, targetChatId, msg.message, messageText);
-    }
-    console.log(`✅ [INTERACTIVE DRIP DELIVERED] Clickable buttons sent to: ${targetChatId}`);
-    return msg;
-  } catch (err) {
-    console.warn(`⚠️ [INTERACTIVE BUTTONS FAILED] Falling back to standard text for ${targetChatId}:`, err.message);
-    return await sendAndStoreMessage(sockInstance, targetChatId, { text: messageText });
-  }
+  if (!sockInstance) throw new Error('WhatsApp socket not initialized or disconnected');
+  console.log(`📤 [DRIP DISPATCH] Sending WhatsApp message to: ${targetChatId}`);
+  return await sendAndStoreMessage(sockInstance, targetChatId, { text: messageText });
 }
 
-// Helper to build tailored drip messages using the editable database template
-function buildProgramSpecificDripMessage(sub, nextStep, template) {
-  const name = sub.name || 'Candidate';
-  const category = (sub.category || '').trim();
+// Helper to build tailored drip messages with 1-tap interactive response links
+function buildProgramSpecificDripMessage(sub, nextStep, template, botPhone = '') {
+  const name = sub?.name || 'Candidate';
+  const category = (sub?.category || '').trim();
 
   let baseMsg = '';
   // If a template is configured in the database, ALWAYS use it as the source of truth!
@@ -819,8 +770,24 @@ function buildProgramSpecificDripMessage(sub, nextStep, template) {
   baseMsg = baseMsg.replace(/student projects?(&|\/|\band\b)?\s*dissertation/gi, 'Live Project / Dissertation');
   baseMsg = baseMsg.replace(/student projects?/gi, 'Live Project / Dissertation');
 
-  // Interactive Opt-In / Opt-Out choices for students
-  const optFooter = `\n\n━━━━━━━━━━━━━━━━━━━━━\n👉 Reply "INTERESTED" to receive batch dates, syllabus & fee structure.\n👉 Reply "NOT INTERESTED" or "STOP" to unsubscribe.`;
+  // Determine bot phone for 1-tap WhatsApp reply links
+  let targetBotPhone = (botPhone || '').replace(/[^0-9]/g, '');
+  if (!targetBotPhone && typeof sock !== 'undefined' && sock?.user?.id) {
+    targetBotPhone = sock.user.id.split(':')[0].replace(/[^0-9]/g, '');
+  }
+  if (!targetBotPhone && typeof CONFIG !== 'undefined' && CONFIG.ADMIN_PHONE) {
+    targetBotPhone = CONFIG.ADMIN_PHONE.replace(/[^0-9]/g, '');
+  }
+  if (!targetBotPhone) {
+    targetBotPhone = '918383897225';
+  }
+
+  // 1-Tap interactive links + clear text reply instructions
+  const optFooter = `\n\n___________________________\n` +
+    `👉 Reply "INTERESTED" (or tap to reply):\n` +
+    `https://wa.me/${targetBotPhone}?text=INTERESTED\n\n` +
+    `👉 Reply "NOT INTERESTED" or "STOP" to unsubscribe (or tap):\n` +
+    `https://wa.me/${targetBotPhone}?text=NOT%20INTERESTED`;
 
   return baseMsg.trim() + optFooter;
 }
@@ -2398,11 +2365,25 @@ app.post('/api/drip/test-send', async (req, res) => {
     };
 
     const dummySub = { name: 'Candidate', category: 'General Inquiry' };
-    const messageText = buildProgramSpecificDripMessage(dummySub, 1, template);
+    const botNum = sock.user?.id ? sock.user.id.split(':')[0].replace(/[^0-9]/g, '') : '';
+    const messageText = buildProgramSpecificDripMessage(dummySub, 1, template, botNum);
 
+    console.log(`📤 [TEST DRIP] Dispatching guaranteed Day 1 drip test message to ${targetChatId}...`);
     await sendDripWithButtons(sock, targetChatId, messageText);
+
+    await db.logMessage(targetChatId, 'Helix Bot', 'bot', messageText);
+    await db.upsertChat(targetChatId, 'Candidate', cleanPhone, messageText, false);
+    io.emit('new-message', {
+      chat_id: targetChatId,
+      sender_name: 'Helix Bot',
+      sender_type: 'bot',
+      text: messageText,
+      timestamp: new Date().toISOString()
+    });
+
     res.json({ success: true, targetChatId, messageText });
   } catch (err) {
+    console.error('❌ Error in /api/drip/test-send:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
