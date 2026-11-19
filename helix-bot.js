@@ -740,6 +740,62 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
   }
 }
 
+// Send WhatsApp Drip Message with native clickable Quick-Reply Buttons
+async function sendDripWithButtons(sockInstance, targetChatId, messageText) {
+  const buttons = [
+    { displayText: 'Interested', id: 'INTERESTED' },
+    { displayText: 'Not Interested', id: 'NOT INTERESTED' }
+  ];
+
+  try {
+    const baileys = await import('@whiskeysockets/baileys');
+    const formattedButtons = buttons.map(b => ({
+      name: 'quick_reply',
+      buttonParamsJson: JSON.stringify({
+        display_text: b.displayText,
+        id: b.id
+      })
+    }));
+
+    const interactiveContent = {
+      viewOnceMessage: {
+        message: {
+          messageContextInfo: {
+            deviceListMetadata: {},
+            deviceListMetadataVersion: 2
+          },
+          interactiveMessage: baileys.proto.Message.InteractiveMessage.fromObject({
+            body: baileys.proto.Message.InteractiveMessage.Body.fromObject({
+              text: messageText
+            }),
+            footer: baileys.proto.Message.InteractiveMessage.Footer.fromObject({
+              text: 'Helix BioFast Labs • Reply STOP to Unsubscribe'
+            }),
+            header: baileys.proto.Message.InteractiveMessage.Header.fromObject({
+              title: '',
+              hasMediaAttachment: false
+            }),
+            nativeFlowMessage: baileys.proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+              buttons: formattedButtons
+            })
+          })
+        }
+      }
+    };
+
+    const msg = baileys.generateWAMessageFromContent(targetChatId, interactiveContent, {});
+    await sockInstance.relayMessage(targetChatId, msg.message, { messageId: msg.key.id });
+    if (msg.key && msg.key.id) {
+      await storeBaileysMessage(msg.key.id, targetChatId, msg.message, messageText);
+    }
+    console.log(`✅ [INTERACTIVE DRIP DELIVERED] Clickable buttons sent to: ${targetChatId}`);
+    return msg;
+  } catch (err) {
+    console.warn(`⚠️ [INTERACTIVE BUTTONS FAILED] Falling back to standard text for ${targetChatId}:`, err.message);
+    return await sendAndStoreMessage(sockInstance, targetChatId, { text: messageText });
+  }
+}
+
 // Helper to build tailored drip messages using the editable database template
 function buildProgramSpecificDripMessage(sub, nextStep, template) {
   const name = sub.name || 'Candidate';
@@ -873,8 +929,8 @@ async function processDripCampaigns(sock, io) {
       const messageText = buildProgramSpecificDripMessage(sub, nextStep, template);
 
       try {
-        console.log(`📤 Sending Tailored Drip Day ${nextStep} (${sub.campaign_type}) to ${targetChatId}...`);
-        await sendAndStoreMessage(sock, targetChatId, { text: messageText });
+        console.log(`📤 Sending Tailored Drip Day ${nextStep} (${sub.campaign_type}) to ${targetChatId} with interactive buttons...`);
+        await sendDripWithButtons(sock, targetChatId, messageText);
 
         await db.logMessage(targetChatId, 'Helix Bot', 'bot', messageText);
         await db.upsertChat(targetChatId, sub.name, cleanPhone, messageText, false);
@@ -2344,7 +2400,7 @@ app.post('/api/drip/test-send', async (req, res) => {
     const dummySub = { name: 'Candidate', category: 'General Inquiry' };
     const messageText = buildProgramSpecificDripMessage(dummySub, 1, template);
 
-    await sendAndStoreMessage(sock, targetChatId, { text: messageText });
+    await sendDripWithButtons(sock, targetChatId, messageText);
     res.json({ success: true, targetChatId, messageText });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -2383,8 +2439,8 @@ app.post('/api/drip/subscribers/:id/send-now', async (req, res) => {
     // Generate tailored message focused on the student's program and counselor notes
     const messageText = buildProgramSpecificDripMessage(sub, nextStep, template);
 
-    console.log(`📤 [SEND NOW] Sending Day ${nextStep} to ${targetChatId} (${sub.name})...`);
-    await sendAndStoreMessage(sock, targetChatId, { text: messageText });
+    console.log(`📤 [SEND NOW] Sending Day ${nextStep} to ${targetChatId} (${sub.name}) with interactive buttons...`);
+    await sendDripWithButtons(sock, targetChatId, messageText);
 
     await db.logMessage(targetChatId, 'Helix Bot', 'bot', messageText);
     await db.upsertChat(targetChatId, sub.name, cleanPhone, messageText, false);
