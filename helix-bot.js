@@ -768,6 +768,7 @@ function buildProgramSpecificDripMessage(sub, nextStep, template) {
 
   return baseMsg.trim() + optFooter;
 }
+const generateTailoredDripMessage = buildProgramSpecificDripMessage;
 
 // Global Concurrency Guard to prevent multiple simultaneous drip execution cycles
 let isProcessingDrip = false;
@@ -2354,7 +2355,7 @@ app.post('/api/drip/subscribers/:id/send-now', async (req, res) => {
     const targetChatId = cleanPhone.includes('@') ? cleanPhone : cleanPhone + '@s.whatsapp.net';
 
     // Generate tailored message focused on the student's program and counselor notes
-    const messageText = await generateTailoredDripMessage(sub, nextStep, template);
+    const messageText = buildProgramSpecificDripMessage(sub, nextStep, template);
 
     console.log(`📤 [SEND NOW] Sending Day ${nextStep} to ${targetChatId} (${sub.name})...`);
     await sendAndStoreMessage(sock, targetChatId, { text: messageText });
