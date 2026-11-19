@@ -770,24 +770,10 @@ function buildProgramSpecificDripMessage(sub, nextStep, template, botPhone = '')
   baseMsg = baseMsg.replace(/student projects?(&|\/|\band\b)?\s*dissertation/gi, 'Live Project / Dissertation');
   baseMsg = baseMsg.replace(/student projects?/gi, 'Live Project / Dissertation');
 
-  // Determine bot phone for 1-tap WhatsApp reply links
-  let targetBotPhone = (botPhone || '').replace(/[^0-9]/g, '');
-  if (!targetBotPhone && typeof sock !== 'undefined' && sock?.user?.id) {
-    targetBotPhone = sock.user.id.split(':')[0].replace(/[^0-9]/g, '');
-  }
-  if (!targetBotPhone && typeof CONFIG !== 'undefined' && CONFIG.ADMIN_PHONE) {
-    targetBotPhone = CONFIG.ADMIN_PHONE.replace(/[^0-9]/g, '');
-  }
-  if (!targetBotPhone) {
-    targetBotPhone = '918383897225';
-  }
-
-  // 1-Tap interactive links + clear text reply instructions
+  // Clean, professional reply actions without cluttered links
   const optFooter = `\n\n___________________________\n` +
-    `👉 Reply "INTERESTED" (or tap to reply):\n` +
-    `https://wa.me/${targetBotPhone}?text=INTERESTED\n\n` +
-    `👉 Reply "NOT INTERESTED" or "STOP" to unsubscribe (or tap):\n` +
-    `https://wa.me/${targetBotPhone}?text=NOT%20INTERESTED`;
+    `👉 Reply "INTERESTED" to receive batch dates, syllabus & fee structure.\n` +
+    `👉 Reply "NOT INTERESTED" or "STOP" to unsubscribe.`;
 
   return baseMsg.trim() + optFooter;
 }
