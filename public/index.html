@@ -53,7 +53,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="connection-status-card" id="connectionStatusCard">
+        <div class="connection-status-card" id="connectionStatusCard" onclick="switchTab('settings')" style="cursor:pointer;" title="Click to open Settings & WhatsApp QR Barcode">
           <div class="status-indicator offline" id="statusDot"></div>
           <div>
             <div class="status-title" id="statusText">Checking WhatsApp...</div>
@@ -78,15 +78,7 @@
           <button type="button" class="btn btn-danger" id="btnNavbarStopBroadcast" style="display:none; background:#DC2626; color:#fff; font-weight:700; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(220,38,38,0.35);">
             <i class="fa-solid fa-octagon-xmark"></i> Stop Running Broadcast
           </button>
-          <button type="button" class="btn btn-secondary" id="btnNavbarNetworkLink" title="Click to copy link to open on other computers on your Wi-Fi" style="background:#F0FDF4; border:1px solid #86EFAC; color:#166534; font-weight:600; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
-            <i class="fa-solid fa-wifi" style="color:#16A34A;"></i> <span id="navbarNetworkText">Network: http://...</span>
-          </button>
-          <button class="btn btn-secondary" id="btnExportLeads">
-            <i class="fa-solid fa-download"></i> Export Master Report
-          </button>
-          <button class="btn btn-primary" id="btnRefresh" style="background:#0284c7; border-color:#0284c7;">
-            <i class="fa-solid fa-rotate"></i> Sync WhatsApp
-          </button>
+
         </div>
       </header>
 
@@ -95,35 +87,35 @@
         <!-- 5 Clinical Stat Cards -->
         <div class="clinical-metrics-row">
           <div class="clinical-stat-card">
-            <div class="clinical-stat-lbl">Total Registered Leads</div>
+            <div class="clinical-stat-lbl">TOTAL REGISTERED</div>
             <div class="clinical-stat-val" id="statTotalLeads">0</div>
             <div class="clinical-stat-note" style="color:#0284c7;"><i class="fa-solid fa-shield-halved"></i> 100% Verified Phone</div>
           </div>
 
           <div class="clinical-stat-card">
-            <div class="clinical-stat-lbl">Fresh Inquiries (24h)</div>
+            <div class="clinical-stat-lbl">FRESH INQUIRIES (24H)</div>
             <div class="clinical-stat-val" id="statNewLeads" style="color:#0284c7;">0</div>
             <div class="clinical-stat-note" style="color:#0284c7;"><i class="fa-solid fa-robot"></i> Gemini Auto-Responded</div>
           </div>
 
           <div class="clinical-stat-card">
-            <div class="clinical-stat-lbl">Active in Counseling</div>
+            <div class="clinical-stat-lbl">ACTIVE IN COUNSELING</div>
             <div class="clinical-stat-val" id="statInProgress" style="color:#d97706;">0</div>
             <div class="clinical-stat-note" style="color:#d97706;"><i class="fa-solid fa-clock"></i> Awaiting Follow-up</div>
           </div>
 
           <div class="clinical-stat-card">
-            <div class="clinical-stat-lbl">Lab Confirmed Seats</div>
+            <div class="clinical-stat-lbl">LAB CONFIRMED SEATS</div>
             <div class="clinical-stat-val" id="statEnrolled" style="color:#16a34a;">0</div>
             <div class="clinical-stat-note" style="color:#16a34a;"><i class="fa-solid fa-graduation-cap"></i> Target: 30 Candidates</div>
           </div>
 
           <div class="clinical-alert-card clickable" id="cardTalkToTeam" onclick="openTalkToTeamModal()" title="Click to view & call all students who opted for Option 6 (Talk to Our Team)">
             <div class="clinical-alert-top">
-              <span class="clinical-alert-title"><i class="fa-solid fa-triangle-exclamation"></i> Option 6 Call Queue</span>
-              <span class="clinical-alert-val" id="statTalkToTeam">0 Pending</span>
+              <span class="clinical-alert-title"><i class="fa-solid fa-phone-volume"></i> OPTION 6 CALLS</span>
+              <span class="clinical-alert-val" id="statTalkToTeam">0</span>
             </div>
-            <div class="clinical-alert-sub">Direct Counselor Callback Required &rarr;</div>
+            <div class="clinical-alert-sub"><i class="fa-solid fa-headset"></i> Counselor Callback &rarr;</div>
           </div>
         </div>
 
@@ -203,23 +195,7 @@
               </div>
             </div>
 
-            <!-- WhatsApp Connection Manager -->
-            <div class="clinical-box">
-              <div class="clinical-box-header">
-                <div class="clinical-box-title">
-                  <i class="fa-solid fa-qrcode" style="color:#059669;"></i> WhatsApp Connection Sentinel
-                </div>
-              </div>
-              <div class="card-body text-center" style="padding:10px 0;">
-                <div id="qrWidgetContainer">
-                  <div class="qr-placeholder">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                    <p>Loading WhatsApp status...</p>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
 
         <!-- Option 6 Callbacks Section on Dashboard -->
@@ -244,7 +220,7 @@
             </div>
           </div>
           <div style="padding:0;">
-            <div class="table-container" style="max-height:340px; overflow-y:auto;">
+            <div class="table-container" style="max-height:130px; overflow-y:auto;">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1638,6 +1614,24 @@
       <!-- TAB 8: BOT SETTINGS & QR CODE -->
       <section class="tab-content" id="tab-settings">
         <div class="dashboard-grid">
+          <!-- System Quick Controls & Export Tools (Relocated from Top Bar) -->
+          <div class="card" style="grid-column: 1 / -1; background:#f8fafc; border: 1px solid #cbd5e1; margin-bottom: 2px;">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px;">
+              <h3 style="margin:0; font-size:14px; font-weight:700; color:#0f172a;"><i class="fa-solid fa-sliders" style="color:#0284c7;"></i> System Tools & Quick Controls</h3>
+              <span style="font-size:12px; color:#64748b;">Instant WhatsApp sync, local Wi-Fi sharing and full database report</span>
+            </div>
+            <div class="card-body" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:14px 18px;">
+              <button type="button" class="btn btn-secondary" id="btnNavbarNetworkLink" title="Click to copy link to open on other computers on your Wi-Fi" style="background:#F0FDF4; border:1px solid #86EFAC; color:#166534; font-weight:600; display:inline-flex; align-items:center; gap:6px; cursor:pointer; padding:8px 16px;">
+                <i class="fa-solid fa-wifi" style="color:#16A34A;"></i> <span id="navbarNetworkText">Network: http://...</span>
+              </button>
+              <button class="btn btn-secondary" id="btnExportLeads" style="padding:8px 16px; font-weight:600;">
+                <i class="fa-solid fa-download"></i> Export Master Report
+              </button>
+              <button class="btn btn-primary" id="btnRefresh" style="background:#0284c7; border-color:#0284c7; padding:8px 16px; font-weight:600;">
+                <i class="fa-solid fa-rotate"></i> Sync WhatsApp
+              </button>
+            </div>
+          </div>
           <!-- Connection Settings -->
           <div class="card">
             <div class="card-header">
