@@ -65,12 +65,16 @@
 
     <!-- Main Content Area -->
     <main class="main-content">
-      <!-- Top Navbar -->
-      <header class="navbar">
-        <div class="page-title">
-          <h1 id="currentPageTitle">Dashboard Overview</h1>
+      <!-- Top Navbar (Option 2: Clinical & Research Academic Portal) -->
+      <header class="navbar clinical-navbar">
+        <div class="page-title" style="display:flex; align-items:center; gap:12px;">
+          <span class="clinical-portal-tag">Research & Academic Hub</span>
+          <h1 id="currentPageTitle">Admissions & Student Counseling Desk</h1>
         </div>
         <div class="navbar-actions">
+          <div class="clinical-counselor-badge">
+            <i class="fa-solid fa-user-doctor" style="color:#0284c7;"></i> Official Counselor: Academic Counselor, Helix BioFast Labs
+          </div>
           <button type="button" class="btn btn-danger" id="btnNavbarStopBroadcast" style="display:none; background:#DC2626; color:#fff; font-weight:700; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(220,38,38,0.35);">
             <i class="fa-solid fa-octagon-xmark"></i> Stop Running Broadcast
           </button>
@@ -78,99 +82,156 @@
             <i class="fa-solid fa-wifi" style="color:#16A34A;"></i> <span id="navbarNetworkText">Network: http://...</span>
           </button>
           <button class="btn btn-secondary" id="btnExportLeads">
-            <i class="fa-solid fa-download"></i> Export CSV
+            <i class="fa-solid fa-download"></i> Export Master Report
           </button>
-          <button class="btn btn-primary" id="btnRefresh">
-            <i class="fa-solid fa-rotate"></i> Refresh Data
+          <button class="btn btn-primary" id="btnRefresh" style="background:#0284c7; border-color:#0284c7;">
+            <i class="fa-solid fa-rotate"></i> Sync WhatsApp
           </button>
         </div>
       </header>
 
-      <!-- TAB 1: DASHBOARD OVERVIEW -->
+      <!-- TAB 1: DASHBOARD OVERVIEW (OPTION 2: SCIENTIFIC & CLINICAL LAB SUITE) -->
       <section class="tab-content active" id="tab-dashboard">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon bg-blue"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-info">
-              <h3>Total Leads</h3>
-              <p class="stat-value" id="statTotalLeads">0</p>
-            </div>
+        <!-- 5 Clinical Stat Cards -->
+        <div class="clinical-metrics-row">
+          <div class="clinical-stat-card">
+            <div class="clinical-stat-lbl">Total Registered Leads</div>
+            <div class="clinical-stat-val" id="statTotalLeads">0</div>
+            <div class="clinical-stat-note" style="color:#0284c7;"><i class="fa-solid fa-shield-halved"></i> 100% Verified Phone</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon bg-green"><i class="fa-solid fa-user-plus"></i></div>
-            <div class="stat-info">
-              <h3>New Leads</h3>
-              <p class="stat-value" id="statNewLeads">0</p>
-            </div>
+
+          <div class="clinical-stat-card">
+            <div class="clinical-stat-lbl">Fresh Inquiries (24h)</div>
+            <div class="clinical-stat-val" id="statNewLeads" style="color:#0284c7;">0</div>
+            <div class="clinical-stat-note" style="color:#0284c7;"><i class="fa-solid fa-robot"></i> Gemini Auto-Responded</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon bg-amber"><i class="fa-solid fa-spinner"></i></div>
-            <div class="stat-info">
-              <h3>In Progress</h3>
-              <p class="stat-value" id="statInProgress">0</p>
-            </div>
+
+          <div class="clinical-stat-card">
+            <div class="clinical-stat-lbl">Active in Counseling</div>
+            <div class="clinical-stat-val" id="statInProgress" style="color:#d97706;">0</div>
+            <div class="clinical-stat-note" style="color:#d97706;"><i class="fa-solid fa-clock"></i> Awaiting Follow-up</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon bg-purple"><i class="fa-solid fa-graduation-cap"></i></div>
-            <div class="stat-info">
-              <h3>Enrolled</h3>
-              <p class="stat-value" id="statEnrolled">0</p>
-            </div>
+
+          <div class="clinical-stat-card">
+            <div class="clinical-stat-lbl">Lab Confirmed Seats</div>
+            <div class="clinical-stat-val" id="statEnrolled" style="color:#16a34a;">0</div>
+            <div class="clinical-stat-note" style="color:#16a34a;"><i class="fa-solid fa-graduation-cap"></i> Target: 30 Candidates</div>
           </div>
-          <div class="stat-card clickable" id="cardTalkToTeam" onclick="openTalkToTeamModal()" title="Click to view & call all students who opted for Option 6 (Talk to Our Team)">
-            <div class="stat-icon bg-rose"><i class="fa-solid fa-phone-volume"></i></div>
-            <div class="stat-info">
-              <h3 style="color:#BE123C; font-weight:700;">Talk to Team (Opt 6)</h3>
-              <div style="display:flex; align-items:baseline; justify-content:space-between;">
-                <p class="stat-value" id="statTalkToTeam" style="color:#E11D48;">0</p>
-                <span style="font-size:10px; color:#E11D48; font-weight:700; text-decoration:underline;">View & Call &rarr;</span>
-              </div>
+
+          <div class="clinical-alert-card clickable" id="cardTalkToTeam" onclick="openTalkToTeamModal()" title="Click to view & call all students who opted for Option 6 (Talk to Our Team)">
+            <div class="clinical-alert-top">
+              <span class="clinical-alert-title"><i class="fa-solid fa-triangle-exclamation"></i> Option 6 Call Queue</span>
+              <span class="clinical-alert-val" id="statTalkToTeam">0 Pending</span>
             </div>
+            <div class="clinical-alert-sub">Direct Counselor Callback Required &rarr;</div>
           </div>
         </div>
 
-        <div class="dashboard-grid">
-          <!-- Recent Activity / Breakdown -->
-          <div class="card">
-            <div class="card-header">
-              <h3><i class="fa-solid fa-layer-group"></i> Leads by Course Category</h3>
+        <!-- Middle Layout: Recent Feed + Batches + Sentinel -->
+        <div class="clinical-mid-grid">
+          <!-- Left: Recent WhatsApp Interactions & Inquiries -->
+          <div class="clinical-box">
+            <div class="clinical-box-header">
+              <div class="clinical-box-title">
+                <i class="fa-brands fa-whatsapp" style="color:#22c55e;"></i> Recent WhatsApp Interactions & Inquiries
+              </div>
+              <a href="javascript:void(0)" onclick="switchTab('inbox')" class="clinical-box-link">View Full Inbox &rarr;</a>
             </div>
-            <div class="card-body">
+            <div id="recentWhatsAppFeed" class="clinical-feed-list">
+              <div style="padding:24px; text-align:center; color:#64748b;">
+                <i class="fa-solid fa-comments" style="font-size:24px; margin-bottom:8px; display:block; color:#94a3b8;"></i>
+                Loading recent WhatsApp interactions...
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Training Batches, Course Breakdown & WhatsApp Manager -->
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Upcoming Hands-On Training Batches -->
+            <div class="clinical-box">
+              <div class="clinical-box-header">
+                <div class="clinical-box-title">
+                  <i class="fa-solid fa-flask-vial" style="color:#0284c7;"></i> Upcoming Hands-On Training Batches
+                </div>
+                <a href="javascript:void(0)" onclick="switchTab('workshops')" class="clinical-box-link">Manage Batches &rarr;</a>
+              </div>
+              <div class="clinical-batches-list">
+                <div class="clinical-batch-item">
+                  <div class="batch-top">
+                    <span>Molecular Biology & PCR Workshop</span>
+                    <span class="batch-badge">Dec 2026 Batch</span>
+                  </div>
+                  <div class="batch-details">
+                    <span>Seats: <strong>18 / 25 Enrolled</strong></span>
+                    <span style="color:#16a34a; font-weight:600;"><i class="fa-solid fa-fire"></i> Filling Fast</span>
+                  </div>
+                </div>
+
+                <div class="clinical-batch-item">
+                  <div class="batch-top">
+                    <span>Industrial Fermentation & Downstream Tech</span>
+                    <span class="batch-badge">Jan 2027 Batch</span>
+                  </div>
+                  <div class="batch-details">
+                    <span>Seats: <strong>8 / 20 Enrolled</strong></span>
+                    <span style="color:#0284c7; font-weight:600;">Open for Booking</span>
+                  </div>
+                </div>
+
+                <div class="clinical-batch-item">
+                  <div class="batch-top">
+                    <span>Medical Biotechnology & Molecular Diagnostics</span>
+                    <span class="batch-badge">Jan 2027 Batch</span>
+                  </div>
+                  <div class="batch-details">
+                    <span>Seats: <strong>12 / 20 Enrolled</strong></span>
+                    <span style="color:#0284c7; font-weight:600;">Open for Booking</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leads by Category (Preserves existing categoryBreakdownList container) -->
+            <div class="clinical-box">
+              <div class="clinical-box-header">
+                <div class="clinical-box-title">
+                  <i class="fa-solid fa-layer-group" style="color:#0284c7;"></i> Leads by Course Category
+                </div>
+              </div>
               <div id="categoryBreakdownList" class="breakdown-list">
                 <p class="empty-state">No category metrics available yet.</p>
               </div>
             </div>
-          </div>
 
-          <!-- Quick QR Widget -->
-          <div class="card">
-            <div class="card-header">
-              <h3><i class="fa-solid fa-qrcode"></i> WhatsApp Connection Manager</h3>
-            </div>
-            <div class="card-body text-center">
-              <div id="qrWidgetContainer">
-                <div class="qr-placeholder">
-                  <i class="fa-solid fa-circle-notch fa-spin"></i>
-                  <p>Loading WhatsApp status...</p>
+            <!-- WhatsApp Connection Manager -->
+            <div class="clinical-box">
+              <div class="clinical-box-header">
+                <div class="clinical-box-title">
+                  <i class="fa-solid fa-qrcode" style="color:#059669;"></i> WhatsApp Connection Sentinel
+                </div>
+              </div>
+              <div class="card-body text-center" style="padding:10px 0;">
+                <div id="qrWidgetContainer">
+                  <div class="qr-placeholder">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <p>Loading WhatsApp status...</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-
-          
         </div>
 
         <!-- Option 6 Callbacks Section on Dashboard -->
-        <div class="card margin-top" style="border-top: 3px solid #E11D48;">
-          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div class="clinical-box" style="margin-top:18px; border-top: 3px solid #E11D48;">
+          <div class="clinical-box-header" style="flex-wrap:wrap; gap:10px;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <div style="width:36px; height:36px; border-radius:8px; background:#FFE4E6; color:#E11D48; display:flex; align-items:center; justify-content:center; font-size:16px;">
+              <div style="width:34px; height:34px; border-radius:8px; background:#FFE4E6; color:#E11D48; display:flex; align-items:center; justify-content:center; font-size:15px;">
                 <i class="fa-solid fa-phone-volume"></i>
               </div>
               <div>
-                <h3 style="margin:0; font-size:15px; font-weight:700; color:#1e293b;">Option 6: Students Requesting Direct Team Call</h3>
-                <span style="font-size:12px; color:#64748b;">Direct telephonic call list of students who chose "Talk to Our Team" on WhatsApp</span>
+                <h3 style="margin:0; font-size:14px; font-weight:700; color:#b91c1c;">Direct Telephonic Callback Requests (Option 6 from WhatsApp)</h3>
+                <span style="font-size:11.5px; color:#64748b;">Direct telephonic call list of students who chose "Talk to Our Team" on WhatsApp</span>
               </div>
             </div>
             <div style="display:flex; gap:8px;">
@@ -178,11 +239,11 @@
                 <i class="fa-solid fa-file-excel" style="color:#107C41;"></i> Export to Excel
               </button>
               <button type="button" class="btn btn-primary btn-sm" onclick="openTalkToTeamModal()" style="background:#E11D48; border-color:#E11D48;">
-                <i class="fa-solid fa-up-right-from-square"></i> Open Full Call Directory (<span id="dashTalkToTeamCount">0</span>)
+                <i class="fa-solid fa-up-right-from-square"></i> Open Full Directory (<span id="dashTalkToTeamCount">0</span>)
               </button>
             </div>
           </div>
-          <div class="card-body" style="padding:0;">
+          <div style="padding:0;">
             <div class="table-container" style="max-height:340px; overflow-y:auto;">
               <table class="data-table">
                 <thead>
@@ -230,7 +291,7 @@
               <option value="Advance (15D)">Advance (15D)</option>
               <option value="Industrial (30D)">Industrial (30D)</option>
               <option value="Job-Oriented">Job-Oriented</option>
-              <option value="Project/Dissertation">Project/Dissertation</option>
+              <option value="Live Project / Dissertation">Live Project / Dissertation</option>
               <option value="PhD Assistance">PhD Assistance</option>
               <option value="Forensic Services">Forensic Services</option>
             </select>
@@ -452,6 +513,11 @@
               <button class="btn-subnav" id="btnSubtabTemplates" data-subtab="templates">
                 <i class="fa-solid fa-pen-ruler"></i> Sequence Templates
               </button>
+              <button class="btn-subnav" id="btnSubtabConsent" data-subtab="consent" style="color: #059669; font-weight: 700;">
+                <i class="fa-solid fa-user-check" style="color: #10B981;"></i> Student Interest &amp; Consent
+                <span class="badge" id="badgeConsentInterested" style="margin-left: 6px; background: #10B981; color: white;">0</span>
+                <span class="badge" id="badgeConsentNotInterested" style="margin-left: 4px; background: #EF4444; color: white;">0</span>
+              </button>
               <button class="btn-subnav" id="btnSubtabStopDrip" data-subtab="stopdrip" style="color: #DC2626; font-weight: 700;">
                 <i class="fa-solid fa-power-off" style="color: #DC2626;"></i> Stop / Master Control
               </button>
@@ -460,6 +526,9 @@
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <button type="button" class="btn btn-danger btn-sm" id="btnHeaderStopAllDrip" title="Stop or Resume all automated drip follow-up campaigns" style="background:#DC2626; border-color:#DC2626; color:#fff; font-weight:700; padding:7px 14px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 3px rgba(220,38,38,0.25);">
                 <i class="fa-solid fa-circle-stop"></i> Stop All Drip Campaigns
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnExportConsentExcelTop" title="Export All Student Consent &amp; Interest Data to Excel (.csv)" style="background:#fff; color:#059669; border:1px solid #10B981; font-weight:600; padding:7px 12px; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-file-excel"></i> Export Consent Data
               </button>
               <button type="button" class="btn btn-secondary btn-sm" id="btnOpenDripExcelModal" title="Import students directly from Excel sheet into Drip Campaign" style="background:#f0fdf4; color:#166534; border:1px solid #86efac; font-weight:600; padding:7px 13px; display:inline-flex; align-items:center; gap:7px;">
                 <i class="fa-solid fa-file-excel" style="color: #16a34a; font-size: 15px;"></i> Import from Excel
@@ -562,7 +631,7 @@
                   <option value="All">All Courses / Interests</option>
                   <option value="Industrial (30D)">Industrial (30D)</option>
                   <option value="Job-Oriented">Job-Oriented</option>
-                  <option value="Project/Dissertation">Project/Dissertation</option>
+                  <option value="Live Project / Dissertation">Live Project / Dissertation</option>
                   <option value="PhD Assistance">PhD Assistance</option>
                   <option value="Forensic Services">Forensic Services</option>
                 </select>
@@ -636,7 +705,7 @@
                   <option value="Advance (15D)">Advance (15D)</option>
                   <option value="Industrial (30D)">Industrial (30D)</option>
                   <option value="Job-Oriented">Job-Oriented</option>
-                  <option value="Project/Dissertation">Project/Dissertation</option>
+                  <option value="Live Project / Dissertation">Live Project / Dissertation</option>
                   <option value="PhD Assistance">PhD Assistance</option>
                   <option value="Forensic Services">Forensic Services</option>
                 </select>
@@ -855,6 +924,104 @@
                     <strong id="ctrlLabPaused" style="color: #DC2626;">0</strong>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBTAB: STUDENT INTEREST & CONSENT DIRECTORY -->
+          <div class="card-body" id="viewDripConsent" style="display:none;">
+            <!-- Summary Stats for Consent -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
+              <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px;">
+                <div style="width:48px; height:48px; border-radius:50%; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; font-size:22px;">
+                  <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                  <div style="font-size:12px; color:#166534; font-weight:700; text-transform:uppercase;">Interested Candidates (Opted-In)</div>
+                  <div style="font-size:26px; font-weight:800; color:#15803D;" id="consentInterestedCount">0</div>
+                  <div style="font-size:11px; color:#16A34A;">Replied 'INTERESTED' &amp; confirmed training interest</div>
+                </div>
+              </div>
+
+              <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:16px; display:flex; align-items:center; gap:16px;">
+                <div style="width:48px; height:48px; border-radius:50%; background:#FEE2E2; color:#DC2626; display:flex; align-items:center; justify-content:center; font-size:22px;">
+                  <i class="fa-solid fa-user-slash"></i>
+                </div>
+                <div>
+                  <div style="font-size:12px; color:#991B1B; font-weight:700; text-transform:uppercase;">Not Interested (Opted-Out / Blacklisted)</div>
+                  <div style="font-size:26px; font-weight:800; color:#B91C1C;" id="consentNotInterestedCount">0</div>
+                  <div style="font-size:11px; color:#DC2626;">Permanently blocked from automated drip messages</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 1: INTERESTED CANDIDATES TABLE -->
+            <div style="margin-bottom: 28px; background:#fff; border:1px solid #E2E8F0; border-radius:10px; overflow:hidden;">
+              <div style="padding:14px 18px; background:#F8FAFC; border-bottom:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-circle-check" style="color:#16A34A; font-size:16px;"></i>
+                  <strong style="color:#1E293B; font-size:14px;">Interested Candidates (Ready for Admissions &amp; Batch Allocation)</strong>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <input type="text" id="searchInterestedInput" placeholder="Search interested students..." style="padding:6px 12px; font-size:12px; border:1px solid #CBD5E1; border-radius:6px; width:220px;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnExportInterestedCsv" style="background:#fff; color:#16A34A; border:1px solid #16A34A; font-weight:600; padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-file-excel"></i> Export Interested (Excel/CSV)
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-container" style="max-height:320px; overflow-y:auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:40px;">#</th>
+                      <th>Candidate Name</th>
+                      <th>WhatsApp Phone</th>
+                      <th>Course / Category</th>
+                      <th>Opted-In Timestamp</th>
+                      <th>Status</th>
+                      <th>Direct Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dripConsentInterestedBody">
+                    <tr><td colspan="7" class="text-center" style="padding:24px; color:#64748B;">Loading interested candidates...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SECTION 2: NOT INTERESTED / OPTED-OUT STUDENTS TABLE -->
+            <div style="background:#fff; border:1px solid #E2E8F0; border-radius:10px; overflow:hidden;">
+              <div style="padding:14px 18px; background:#FEF2F2; border-bottom:1px solid #FECACA; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-ban" style="color:#DC2626; font-size:16px;"></i>
+                  <strong style="color:#991B1B; font-size:14px;">Not Interested / Unsubscribed (Safe Blacklist - Never Receives Drips)</strong>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <input type="text" id="searchNotInterestedInput" placeholder="Search opted-out students..." style="padding:6px 12px; font-size:12px; border:1px solid #CBD5E1; border-radius:6px; width:220px;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnExportNotInterestedCsv" style="background:#fff; color:#DC2626; border:1px solid #DC2626; font-weight:600; padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-file-excel"></i> Export Opted-Out (Excel/CSV)
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-container" style="max-height:320px; overflow-y:auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:40px;">#</th>
+                      <th>Candidate Name</th>
+                      <th>WhatsApp Phone</th>
+                      <th>Opt-Out Reason / Message</th>
+                      <th>Opted-Out Timestamp</th>
+                      <th>Drip Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dripConsentNotInterestedBody">
+                    <tr><td colspan="7" class="text-center" style="padding:24px; color:#64748B;">No candidates opted out yet.</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -1084,7 +1251,7 @@
                       <option value="Advance (15D)">Advance (15D)</option>
                       <option value="Industrial (30D)">Industrial (30D)</option>
                       <option value="Job-Oriented">Job-Oriented</option>
-                      <option value="Project/Dissertation">Project/Dissertation</option>
+                      <option value="Live Project / Dissertation">Live Project / Dissertation</option>
                       <option value="PhD Assistance">PhD Assistance</option>
                       <option value="Forensic Services">Forensic Services</option>
                     </select>
@@ -1119,7 +1286,7 @@
                       <option value="Pharmacy">Pharmacy</option>
                       <option value="Botany">Botany</option>
                       <option value="Zoology">Zoology</option>
-                      <option value="Bioinformatics">Bioinformatics</option>
+                      <option value="Medical Biotechnology">Medical Biotechnology</option>
                       <option value="Other">Other Departments</option>
                     </select>
                   </div>
@@ -1360,7 +1527,7 @@
                   <option value="Life Sciences">Life Sciences</option>
                   <option value="Pharmacy">Pharmacy</option>
                   <option value="Botany / Zoology">Botany / Zoology</option>
-                  <option value="Bioinformatics">Bioinformatics</option>
+                  <option value="Medical Biotechnology">Medical Biotechnology</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
@@ -1886,7 +2053,7 @@
             <option value="Advance (15D)">Advance (15D)</option>
             <option value="Industrial (30D)">Industrial (30D)</option>
             <option value="Job-Oriented">Job-Oriented</option>
-            <option value="Project/Dissertation">Project/Dissertation</option>
+            <option value="Live Project / Dissertation">Live Project / Dissertation</option>
             <option value="PhD Assistance">PhD Assistance</option>
             <option value="Forensic Services">Forensic Services</option>
             <option value="General Inquiry">General Inquiry</option>
@@ -1929,7 +2096,7 @@
               <option value="Advance (15D)">Advance Biotech Training (15 Days)</option>
               <option value="Industrial (30D)">Industrial Training (30 Days)</option>
               <option value="Job-Oriented">Job-Oriented Training Program</option>
-              <option value="Project/Dissertation">Project / Dissertation</option>
+              <option value="Live Project / Dissertation">Live Project / Dissertation</option>
               <option value="PhD Assistance">PhD Assistance / Wet Lab</option>
               <option value="Forensic Services">Forensic Services</option>
               <option value="Lab Visit Only">Lab Tour / Visit Only</option>
@@ -1979,7 +2146,7 @@
               <option value="Advance (15D)" selected>Advance Biotech Training (15 Days)</option>
               <option value="Industrial (30D)">Industrial Training (30 Days)</option>
               <option value="Job-Oriented">Job-Oriented Training Program</option>
-              <option value="Project/Dissertation">Project / Dissertation</option>
+              <option value="Live Project / Dissertation">Live Project / Dissertation</option>
               <option value="PhD Assistance">PhD Assistance / Wet Lab</option>
               <option value="Forensic Services">Forensic Services</option>
               <option value="General Life Sciences">General Life Sciences Training</option>

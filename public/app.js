@@ -172,6 +172,19 @@ const elements = {
   btnSubtabLogs: document.getElementById('btnSubtabLogs'),
   btnSubtabTemplates: document.getElementById('btnSubtabTemplates'),
   btnSubtabStopDrip: document.getElementById('btnSubtabStopDrip'),
+  btnSubtabConsent: document.getElementById('btnSubtabConsent'),
+  badgeConsentInterested: document.getElementById('badgeConsentInterested'),
+  badgeConsentNotInterested: document.getElementById('badgeConsentNotInterested'),
+  btnExportConsentExcelTop: document.getElementById('btnExportConsentExcelTop'),
+  viewDripConsent: document.getElementById('viewDripConsent'),
+  consentInterestedCount: document.getElementById('consentInterestedCount'),
+  consentNotInterestedCount: document.getElementById('consentNotInterestedCount'),
+  dripConsentInterestedBody: document.getElementById('dripConsentInterestedBody'),
+  dripConsentNotInterestedBody: document.getElementById('dripConsentNotInterestedBody'),
+  searchInterestedInput: document.getElementById('searchInterestedInput'),
+  searchNotInterestedInput: document.getElementById('searchNotInterestedInput'),
+  btnExportInterestedCsv: document.getElementById('btnExportInterestedCsv'),
+  btnExportNotInterestedCsv: document.getElementById('btnExportNotInterestedCsv'),
   viewDripQueue: document.getElementById('viewDripQueue'),
   viewDripLabVisits: document.getElementById('viewDripLabVisits'),
   viewDripLogs: document.getElementById('viewDripLogs'),
@@ -1285,11 +1298,59 @@ async function fetchChats() {
     state.chats = Array.isArray(data) ? data : [];
     updateChatFilterCounts();
     filterAndRenderChats();
+    renderDashboardRecentFeed(state.chats);
   } catch (err) {
     console.error('Failed to fetch chats:', err);
   }
 }
 window.fetchChats = fetchChats;
+
+function renderDashboardRecentFeed(chats) {
+  const container = document.getElementById('recentWhatsAppFeed');
+  if (!container) return;
+  if (!chats || chats.length === 0) {
+    container.innerHTML = `
+      <div style="padding: 24px; text-align: center; color: #64748B;">
+        <i class="fa-solid fa-comments" style="font-size: 24px; color: #94A3B8; margin-bottom: 8px; display: block;"></i>
+        <p style="font-size: 13px;">No active WhatsApp conversations yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const topRecent = chats.slice(0, 6);
+  container.innerHTML = topRecent.map(c => {
+    const name = escapeHtml(c.name || 'Candidate Inquiry');
+    const phone = escapeHtml(c.phone ? '+' + String(c.phone).replace(/[^0-9]/g, '') : '');
+    const msg = escapeHtml(c.last_message || 'Inquiry registered on WhatsApp');
+    const timeStr = formatChatDisplayTime(c.last_message_time || c.created_at);
+    const initials = (name.replace(/[^a-zA-Z]/g, '') || 'ST').substring(0, 2).toUpperCase();
+
+    return `
+      <div class="clinical-stream-item" onclick="openChatAndSwitchTab('${escapeHtml(c.chat_id)}')" style="cursor:pointer;" title="Click to open this conversation in Live Chat">
+        <div class="clinical-stream-icon">${initials}</div>
+        <div class="clinical-stream-body">
+          <div class="clinical-stream-meta">
+            <span class="clinical-stream-name">${name} <span style="font-size:11px; font-weight:normal; color:#64748b;">(${phone})</span></span>
+            <span class="clinical-stream-time">${timeStr}</span>
+          </div>
+          <div class="clinical-stream-msg">${msg}</div>
+          <div style="margin-top:4px; display:flex; gap:6px; align-items:center;">
+            <span class="clinical-tag-ai"><i class="fa-solid fa-robot"></i> AI Counselor Responded</span>
+            <span style="font-size:10.5px; color:#64748b;"><i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> Brochure Available</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+window.renderDashboardRecentFeed = renderDashboardRecentFeed;
+
+function openChatAndSwitchTab(chatId) {
+  if (typeof switchTab === 'function') switchTab('inbox');
+  if (typeof selectChat === 'function') selectChat(chatId);
+}
+window.openChatAndSwitchTab = openChatAndSwitchTab;
 
 function renderChats(chats, matchingContacts = []) {
   if (!elements.chatThreadsList) return;
@@ -1886,6 +1947,15 @@ socket.on('drip-updated', () => {
   if (state.currentTab === 'drip') {
     fetchDripSubscribers();
     fetchDripLogs();
+    fetchDripConsent();
+  }
+});
+
+socket.on('drip-consent-updated', () => {
+  fetchDripConsent();
+  fetchDripStatus();
+  if (state.currentTab === 'drip') {
+    fetchDripSubscribers();
   }
 });
 
@@ -2167,6 +2237,12 @@ function setupEventListeners() {
   elements.btnSubtabLogs?.addEventListener('click', () => switchDripSubtab('logs'));
   elements.btnSubtabTemplates?.addEventListener('click', () => switchDripSubtab('templates'));
   elements.btnSubtabStopDrip?.addEventListener('click', () => switchDripSubtab('stopdrip'));
+  elements.btnSubtabConsent?.addEventListener('click', () => switchDripSubtab('consent'));
+  elements.btnExportInterestedCsv?.addEventListener('click', () => window.open('/api/drip/export-consent?type=interested', '_blank'));
+  elements.btnExportNotInterestedCsv?.addEventListener('click', () => window.open('/api/drip/export-consent?type=not_interested', '_blank'));
+  elements.btnExportConsentExcelTop?.addEventListener('click', () => window.open('/api/drip/export-consent?type=all', '_blank'));
+  elements.searchInterestedInput?.addEventListener('input', () => filterAndRenderInterestedTable());
+  elements.searchNotInterestedInput?.addEventListener('input', () => filterAndRenderNotInterestedTable());
 
   // Master Stop / Resume All Drip Campaigns Listeners
   elements.btnHeaderStopAllDrip?.addEventListener('click', () => {
@@ -2500,6 +2576,7 @@ async function loadDripData() {
   await fetchDripSubscribers();
   await fetchLabVisits();
   await fetchCallInquiries();
+  await fetchDripConsent();
   await fetchDripLogs();
   await fetchDripTemplates();
 }
@@ -2719,6 +2796,7 @@ function switchDripSubtab(subtab) {
   elements.btnSubtabCallInquiries?.classList.toggle('active', subtab === 'callinquiries');
   elements.btnSubtabLogs?.classList.toggle('active', subtab === 'logs');
   elements.btnSubtabTemplates?.classList.toggle('active', subtab === 'templates');
+  elements.btnSubtabConsent?.classList.toggle('active', subtab === 'consent');
   elements.btnSubtabStopDrip?.classList.toggle('active', subtab === 'stopdrip');
 
   // Toggle views
@@ -2727,11 +2805,13 @@ function switchDripSubtab(subtab) {
   if (elements.viewDripCallInquiries) elements.viewDripCallInquiries.style.display = subtab === 'callinquiries' ? 'block' : 'none';
   if (elements.viewDripLogs) elements.viewDripLogs.style.display = subtab === 'logs' ? 'block' : 'none';
   if (elements.viewDripTemplates) elements.viewDripTemplates.style.display = subtab === 'templates' ? 'block' : 'none';
+  if (elements.viewDripConsent) elements.viewDripConsent.style.display = subtab === 'consent' ? 'block' : 'none';
   if (elements.viewDripStopControls) elements.viewDripStopControls.style.display = subtab === 'stopdrip' ? 'block' : 'none';
 
   if (subtab === 'queue') fetchDripSubscribers();
   if (subtab === 'labvisits') fetchLabVisits();
   if (subtab === 'callinquiries') fetchCallInquiries();
+  if (subtab === 'consent') fetchDripConsent();
   if (subtab === 'logs') fetchDripLogs();
   if (subtab === 'templates') fetchDripTemplates();
   if (subtab === 'stopdrip') fetchDripStatus();
@@ -5758,3 +5838,164 @@ function downloadSampleExcelTemplate() {
   XLSX.utils.book_append_sheet(wb, ws, "Student_Contacts");
   XLSX.writeFile(wb, "Helix_Student_Contacts_Sample.xlsx");
 }
+
+
+// ====================================================
+// STUDENT INTEREST & DRIP CONSENT ENGINE
+// ====================================================
+
+let consentState = {
+  interested: [],
+  notInterested: []
+};
+
+async function fetchDripConsent() {
+  try {
+    const res = await fetch('/api/drip/consent-status');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.success) return;
+
+    consentState.interested = Array.isArray(data.interested) ? data.interested : [];
+    consentState.notInterested = Array.isArray(data.notInterested) ? data.notInterested : [];
+
+    const intCount = consentState.interested.length;
+    const notIntCount = consentState.notInterested.length;
+
+    if (elements.consentInterestedCount) elements.consentInterestedCount.textContent = intCount;
+    if (elements.consentNotInterestedCount) elements.consentNotInterestedCount.textContent = notIntCount;
+    if (elements.badgeConsentInterested) elements.badgeConsentInterested.textContent = intCount;
+    if (elements.badgeConsentNotInterested) elements.badgeConsentNotInterested.textContent = notIntCount;
+
+    filterAndRenderInterestedTable();
+    filterAndRenderNotInterestedTable();
+  } catch (err) {
+    console.error('Failed to fetch drip consent status:', err);
+  }
+}
+window.fetchDripConsent = fetchDripConsent;
+
+function filterAndRenderInterestedTable() {
+  if (!elements.dripConsentInterestedBody) return;
+  const query = (elements.searchInterestedInput ? elements.searchInterestedInput.value : '').toLowerCase().trim();
+
+  const filtered = consentState.interested.filter(item => {
+    if (!query) return true;
+    const name = String(item.name || '').toLowerCase();
+    const phone = String(item.phone || '').toLowerCase();
+    const cat = String(item.category || '').toLowerCase();
+    return name.includes(query) || phone.includes(query) || cat.includes(query);
+  });
+
+  if (filtered.length === 0) {
+    elements.dripConsentInterestedBody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:24px; color:#64748B;">No matching interested candidates found.</td></tr>';
+    return;
+  }
+
+  elements.dripConsentInterestedBody.innerHTML = filtered.map((item, idx) => {
+    const name = escapeHtml(item.name || 'Candidate');
+    const phone = escapeHtml(item.phone || '');
+    const category = escapeHtml(item.category || 'Biotechnology Training');
+    const dateStr = item.opted_at ? new Date(item.opted_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) : 'Recently Opted-In';
+    const cleanNum = String(phone).replace(/[^0-9]/g, '');
+
+    return `
+      <tr>
+        <td style="font-weight:600; color:#64748B;">${idx + 1}</td>
+        <td>
+          <div style="font-weight:700; color:#0F172A;">${name}</div>
+        </td>
+        <td>
+          <a href="https://wa.me/${cleanNum}" target="_blank" style="color:#0284c7; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+            <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> +${cleanNum}
+          </a>
+        </td>
+        <td>
+          <span style="background:#F1F5F9; color:#334155; font-size:11px; padding:3px 8px; border-radius:4px; font-weight:600;">${category}</span>
+        </td>
+        <td style="font-size:12px; color:#64748B;">${dateStr}</td>
+        <td>
+          <span class="badge" style="background:#DCFCE7; color:#15803D; font-weight:700; padding:4px 8px; border-radius:4px;">
+            <i class="fa-solid fa-check"></i> Interested
+          </span>
+        </td>
+        <td>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="toggleStudentConsent('${cleanNum}@s.whatsapp.net', '${cleanNum}', 'opt_out', 'Unsubscribed by Counselor')" style="font-size:11px; padding:4px 8px; color:#DC2626; border-color:#FECACA;" title="Move to Not Interested / Unsubscribed list">
+            <i class="fa-solid fa-user-xmark"></i> Unsubscribe
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+window.filterAndRenderInterestedTable = filterAndRenderInterestedTable;
+
+function filterAndRenderNotInterestedTable() {
+  if (!elements.dripConsentNotInterestedBody) return;
+  const query = (elements.searchNotInterestedInput ? elements.searchNotInterestedInput.value : '').toLowerCase().trim();
+
+  const filtered = consentState.notInterested.filter(item => {
+    if (!query) return true;
+    const name = String(item.name || '').toLowerCase();
+    const phone = String(item.phone || '').toLowerCase();
+    const reason = String(item.reason || '').toLowerCase();
+    return name.includes(query) || phone.includes(query) || reason.includes(query);
+  });
+
+  if (filtered.length === 0) {
+    elements.dripConsentNotInterestedBody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:24px; color:#64748B;">No candidates in opt-out list.</td></tr>';
+    return;
+  }
+
+  elements.dripConsentNotInterestedBody.innerHTML = filtered.map((item, idx) => {
+    const name = escapeHtml(item.name || 'Candidate');
+    const phone = escapeHtml(item.phone || '');
+    const reason = escapeHtml(item.reason || 'Replied NOT INTERESTED / STOP');
+    const dateStr = item.opted_at ? new Date(item.opted_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) : 'Opted-Out';
+    const cleanNum = String(phone).replace(/[^0-9]/g, '');
+
+    return `
+      <tr>
+        <td style="font-weight:600; color:#64748B;">${idx + 1}</td>
+        <td>
+          <div style="font-weight:700; color:#0F172A;">${name}</div>
+        </td>
+        <td>
+          <span style="font-family:monospace; font-weight:600; color:#334155;">+${cleanNum}</span>
+        </td>
+        <td>
+          <span style="background:#FEE2E2; color:#991B1B; font-size:11px; padding:3px 8px; border-radius:4px; font-weight:600;">${reason}</span>
+        </td>
+        <td style="font-size:12px; color:#64748B;">${dateStr}</td>
+        <td>
+          <span class="badge" style="background:#FEE2E2; color:#B91C1C; font-weight:700; padding:4px 8px; border-radius:4px;">
+            <i class="fa-solid fa-ban"></i> Blacklisted from Drip
+          </span>
+        </td>
+        <td>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="toggleStudentConsent('${cleanNum}@s.whatsapp.net', '${cleanNum}', 'opt_in')" style="font-size:11px; padding:4px 8px; color:#15803D; border-color:#BBF7D0;" title="Restore to Interested / Re-enroll into drip">
+            <i class="fa-solid fa-user-plus"></i> Re-enroll
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+window.filterAndRenderNotInterestedTable = filterAndRenderNotInterestedTable;
+
+async function toggleStudentConsent(chatId, phone, action, reason = null) {
+  try {
+    const res = await fetch('/api/drip/toggle-consent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatId, phone, action, reason })
+    });
+    if (res.ok) {
+      await fetchDripConsent();
+      await fetchDripSubscribers();
+    }
+  } catch (err) {
+    console.error('Failed to toggle student consent:', err);
+  }
+}
+window.toggleStudentConsent = toggleStudentConsent;

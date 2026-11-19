@@ -1,15 +1,15 @@
 :root {
-  --primary: #128C7E;
-  --primary-dark: #075E54;
-  --primary-light: #25D366;
-  --bg-dark: #111827;
-  --bg-sidebar: #1F2937;
-  --bg-main: #F3F4F6;
+  --primary: #0284c7;
+  --primary-dark: #0369a1;
+  --primary-light: #38bdf8;
+  --bg-dark: #0c1a30;
+  --bg-sidebar: #0c1a30;
+  --bg-main: #f1f5f9;
   --card-bg: #FFFFFF;
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --border-color: #E5E7EB;
-  --radius: 12px;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #E2E8F0;
+  --radius: 10px;
   --transition: all 0.2s ease-in-out;
 }
 
@@ -1232,5 +1232,314 @@ input:checked + .slider:before { transform: translateX(20px); }
 .status-proposal { background-color: #FEF3C7; color: #92400E; }
 .status-mou { background-color: #D1FAE5; color: #065F46; }
 .status-scheduled { background-color: #E0E7FF; color: #3730A3; }
+
+/* OPTION 2: SCIENTIFIC & CLINICAL LAB SUITE STYLES */
+.clinical-navbar {
+  background-color: #FFFFFF;
+  padding: 14px 28px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.clinical-portal-tag {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clinical-counselor-badge {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clinical-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) 1.25fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 1200px) {
+  .clinical-metrics-row {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+.clinical-stat-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.clinical-stat-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+}
+
+.clinical-stat-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0c1a30;
+  line-height: 1.1;
+}
+
+.clinical-stat-note {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.clinical-alert-card {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clinical-alert-card:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
+  transform: translateY(-1px);
+}
+
+.clinical-alert-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.clinical-alert-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9f1239;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.clinical-alert-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: #e11d48;
+  line-height: 1;
+}
+
+.clinical-alert-sub {
+  font-size: 11px;
+  color: #9f1239;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.clinical-mid-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .clinical-mid-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.clinical-box {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.clinical-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.clinical-box-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0c1a30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clinical-box-link {
+  font-size: 11.5px;
+  color: #0284c7;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clinical-box-link:hover {
+  text-decoration: underline;
+}
+
+.clinical-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.clinical-stream-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.clinical-stream-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.clinical-stream-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.clinical-stream-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.clinical-stream-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.clinical-stream-name {
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clinical-stream-time {
+  color: #94a3b8;
+  font-size: 10.5px;
+  flex-shrink: 0;
+}
+
+.clinical-stream-msg {
+  font-size: 12px;
+  color: #475569;
+  background: #ffffff;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border-left: 3px solid #0284c7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clinical-tag-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.clinical-batches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clinical-batch-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.batch-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0c1a30;
+}
+
+.batch-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.batch-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 
 

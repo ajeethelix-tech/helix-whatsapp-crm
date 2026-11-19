@@ -64,7 +64,7 @@ const MESSAGES = {
     'Please select an option:\n\n' +
     '1️⃣ Training Courses\n' +
     '2️⃣ Training Brochure (PDF)\n' +
-    '3️⃣ Student Projects & Dissertation\n' +
+    '3️⃣ Live Project / Dissertation\n' +
     '4️⃣ PhD Assistance\n' +
     '5️⃣ Forensic Services\n' +
     '6️⃣ Talk to Our Team 👨‍🔬\n\n' +
@@ -142,7 +142,7 @@ const MESSAGES = {
     'Reply with 1, 2, or 3 (or B.Sc / M.Sc).',
 
   projectStart:
-    '🔬 STUDENT PROJECTS & DISSERTATION TRAINING\n' +
+    '🔬 LIVE PROJECT / DISSERTATION TRAINING\n' +
     'Turn Your Research Idea into Real Laboratory Experience!\n' +
     'Hands-on Projects | Expert Mentorship | Complete Research Guidance\n\n' +
     'What are you looking for?\n' +
@@ -190,7 +190,7 @@ const MESSAGES = {
     'I did not quite understand that. Please reply with a number (1-6) or type menu to view our options:\n\n' +
     '1. Training Courses\n' +
     '2. Training Brochure (PDF)\n' +
-    '3. Student Projects & Dissertation\n' +
+    '3. Live Project / Dissertation\n' +
     '4. PhD Assistance\n' +
     '5. Forensic Services\n' +
     '6. Talk to Our Team\n\n' +
@@ -220,7 +220,7 @@ const BUTTONS = {
             rows: [
               { title: '1️⃣ Training Courses', id: '1', description: 'Short Term, Advance, Industrial & Job-Oriented' },
               { title: '2️⃣ Training Brochure (PDF)', id: '2', description: 'Download Official Information Brochure' },
-              { title: '3️⃣ Student Projects & Dissertation', id: '3', description: 'B.Sc / M.Sc Thesis Guidance & Benchwork' },
+              { title: '3️⃣ Live Project / Dissertation', id: '3', description: 'B.Sc / M.Sc Thesis Guidance & Benchwork' },
               { title: '4️⃣ PhD Assistance', id: '4', description: 'Research Planning, Wet Lab & Data Support' },
               { title: '5️⃣ Forensic Services', id: '5', description: 'Blood Grouping & Sample Examination' },
               { title: '6️⃣ Talk to Our Team', id: '6', description: 'Connect with Academic Counselor' }
@@ -393,62 +393,38 @@ BUTTONS.unknown = BUTTONS.mainMenu;
 function detectDirectIntent(text) {
   const msg = text.toLowerCase().trim();
 
-  // Greetings & Main Menu
-  if (/^(hi|hello|hey|hii|helo|hlo|start|menu|namaste|good\s*(morning|afternoon|evening))\b/i.test(msg) || msg.includes('main menu')) {
-    return 'mainMenu';
+  // Check if message is a conversational question or sentence inquiry (should go to Gemini AI!)
+  const isConversationalQuestion = /\b(what|which|how|fee|fees|cost|charge|charges|timing|timings|duration|syllabus|curriculum|admission|admissions|eligibility|eligible|placement|placements|internship|internships|workshop|workshops|certificate|certification|stipend|seat|seats|batch|batches|kya|kaise|kab|kitna|kitni|fees|pcr|dna|rna|hplc|culture|fermentation|bioinformatics|microbiology|biotech|biotechnology)\b/i.test(msg) || (msg.split(/\s+/).length > 4);
+
+  // Exact 1-6 Menu Numbers / Options
+  if (msg === '1' || msg === '1.' || (!isConversationalQuestion && (msg === 'courses' || msg === 'training courses'))) return 'trainingMenu';
+  if (msg === '2' || msg === '2.' || (!isConversationalQuestion && (msg === 'brochure' || msg === 'pdf' || msg === 'prospectus'))) return 'brochure';
+  if (msg === '3' || msg === '3.' || (!isConversationalQuestion && (msg === 'project' || msg === 'projects' || msg === 'dissertation'))) return 'projects';
+  if (msg === '4' || msg === '4.' || (!isConversationalQuestion && (msg === 'phd' || msg === 'ph.d' || msg === 'doctorate'))) return 'phd';
+  if (msg === '5' || msg === '5.' || (!isConversationalQuestion && (msg === 'forensic' || msg === 'forensics' || msg === 'dna test'))) return 'forensic';
+  if (msg === '6' || msg === '6.' || (!isConversationalQuestion && (msg === 'human' || msg === 'talk' || msg === 'contact' || msg === 'call' || msg === 'team' || msg === 'talk to team' || msg === 'talk to our team'))) return 'human';
+
+  // Sub-options from Training Menu
+  const mentions1Month = msg.includes('1 month') || msg.includes('one month') || msg.includes('1month') || msg.includes('30 day') || msg.includes('30day');
+
+  if (!mentions1Month && !isConversationalQuestion) {
+    if (msg === 'a' || msg === 'a.' || msg === 'short term' || msg === 'short-term' || msg === '7 days' || msg === '7 day') return 'shortTerm';
+    if (msg === 'b' || msg === 'b.' || msg === 'advance' || msg === 'advanced' || msg === '15 days' || msg === '15 day') return 'advanceTraining';
+    if (msg === 'c' || msg === 'c.' || msg === 'industrial' || msg === 'industrial training') return 'industrialTraining';
   }
 
-  // Location / Address Intent
-  if (
-    msg === 'location' ||
-    msg === 'address' ||
-    msg.includes('location') ||
-    msg.includes('address') ||
-    msg.includes('kaha hai') ||
-    msg.includes('kahan hai') ||
-    msg.includes('where is') ||
-    msg.includes('google map') ||
-    msg.includes('maps') ||
-    msg.includes('direction') ||
-    msg.includes('reach') ||
-    msg.includes('noida address') ||
-    msg.includes('open google maps')
-  ) {
+  if (!isConversationalQuestion && (msg === 'd' || msg === 'd.' || msg === 'job oriented' || msg === 'job-oriented')) return 'jobOriented';
+
+  // Location / Address Intent (only if short / standalone)
+  if (!isConversationalQuestion && (msg === 'location' || msg === 'address' || msg === 'kaha hai' || msg === 'kahan hai' || msg === 'where is the lab' || msg === 'google map' || msg === 'maps' || msg === 'direction')) {
     return 'location';
   }
 
-  // 1-6 Menu Numbers / Options
-  if (msg === '1' || msg === '1.' || msg === 'courses' || msg === 'training courses' || msg.includes('training courses')) return 'trainingMenu';
-  if (
-    msg === '2' ||
-    msg === '2.' ||
-    msg === 'brochure' ||
-    msg === 'pdf' ||
-    msg === 'prospectus' ||
-    msg.includes('brochure') ||
-    msg.includes('broucher') ||
-    msg.includes('brocher') ||
-    msg.includes('brouchure') ||
-    msg.includes('boucher') ||
-    msg.includes('broshure') ||
-    msg.includes('prospectus')
-  ) return 'brochure';
-  if (msg === '3' || msg === '3.' || msg === 'project' || msg === 'projects' || msg === 'dissertation' || msg.includes('student projects')) return 'projects';
-  if (msg === '4' || msg === '4.' || msg === 'phd' || msg === 'ph.d' || msg === 'doctorate' || msg.includes('phd assistance')) return 'phd';
-  if (msg === '5' || msg === '5.' || msg === 'forensic' || msg === 'forensics' || msg === 'dna test' || msg.includes('forensic services')) return 'forensic';
-  if (msg === '6' || msg === '6.' || msg === 'human' || msg === 'talk' || msg === 'contact' || msg === 'call' || msg === 'team' || msg.includes('talk to our team') || msg.includes('talk to team')) return 'human';
-
-  // Sub-options from Training Menu
-  // Do NOT match if the message explicitly asks about "1 month", "one month", or "30 days" training/fee
-  const mentions1Month = msg.includes('1 month') || msg.includes('one month') || msg.includes('1month') || msg.includes('30 day') || msg.includes('30day');
-
-  if (!mentions1Month) {
-    if (msg === 'a' || msg === 'a.' || msg === 'short term' || msg === 'short term training' || msg === 'short-term' || msg === '7 days' || msg === '7 day' || msg.includes('short term')) return 'shortTerm';
-    if (msg === 'b' || msg === 'b.' || msg === 'advance' || msg === 'advance training' || msg === 'advanced training' || msg === '15 days' || msg === '15 day' || msg.includes('advance training')) return 'advanceTraining';
-    if (msg === 'c' || msg === 'c.' || msg === 'industrial' || msg === 'industrial training' || msg.includes('industrial training')) return 'industrialTraining';
+  // Greetings & Main Menu: ONLY if standalone greeting! (e.g. "hi", "hello", "namaste", "menu", "start")
+  const isStandaloneGreeting = /^(hi|hello|hey|hii|helo|hlo|start|menu|namaste|good\s*(morning|afternoon|evening))[!.,\s]*$/i.test(msg) || msg === 'main menu';
+  if (isStandaloneGreeting) {
+    return 'mainMenu';
   }
-
-  if (msg === 'd' || msg === 'd.' || msg === 'job oriented' || msg === 'job-oriented' || msg === 'job oriented training' || msg.includes('job-oriented') || msg.includes('job oriented')) return 'jobOriented';
 
   return null;
 }
@@ -659,8 +635,9 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
       : 'gemini-3.6-flash';
 
     let systemPrompt = config.AI_SYSTEM_PROMPT || 'You are the official Academic Counselor for Helix BioFast Labs Pvt. Ltd.';
+    systemPrompt += `\n\nCRITICAL IDENTITY & PROTOCOL INSTRUCTIONS:\n- OFFICIAL ROLE: You are strictly "Academic Counselor, Helix BioFast Labs".\n- NEVER introduce yourself as "Dr. Ravindra Kumar" or any individual doctor or candidate name.\n- You represent Helix BioFast Labs officially as an institution academic counselor.`;
     if (studentName && studentName !== '~' && studentName !== '.' && studentName !== 'Student') {
-      systemPrompt += `\nCandidate Name: ${studentName}`;
+      systemPrompt += `\n- CANDIDATE YOU ARE TALKING TO: "${studentName}". You are addressing this student. This is the prospective student/inquiry contact's name, NEVER YOUR NAME. Greet them politely by this name if appropriate.`;
     }
 
     // Fetch conversation history from SQLite
@@ -763,6 +740,7 @@ function buildProgramSpecificDripMessage(sub, nextStep, template) {
   const name = sub.name || 'Candidate';
   const category = (sub.category || '').trim();
 
+  let baseMsg = '';
   // If a template is configured in the database, ALWAYS use it as the source of truth!
   if (template && template.message) {
     let msg = template.message;
@@ -770,10 +748,20 @@ function buildProgramSpecificDripMessage(sub, nextStep, template) {
     msg = msg.replace(/{student_name}/gi, name);
     msg = msg.replace(/{program}/gi, category || 'Biotechnology Training');
     msg = msg.replace(/{category}/gi, category || 'Biotechnology Training');
-    return msg.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
+    baseMsg = msg.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
+  } else {
+    baseMsg = `Hello ${name}, thank you for contacting Helix BioFast Labs regarding our training programs. We offer comprehensive hands-on modules in biotechnology and life sciences. Feel free to reply to this message for details.\n\nHelix BioFast Labs\nwww.helixbiofastlabs.com`;
   }
 
-  return `Hello ${name}, thank you for contacting Helix BioFast Labs regarding our training programs. We offer comprehensive hands-on modules in biotechnology and life sciences. Feel free to reply to this message for details.\n\nHelix BioFast Labs\nwww.helixbiofastlabs.com`;
+  // Course name standardization as per updated curriculum
+  baseMsg = baseMsg.replace(/Bioinformatics/gi, 'Medical Biotechnology');
+  baseMsg = baseMsg.replace(/student projects?(&|\/|\band\b)?\s*dissertation/gi, 'Live Project / Dissertation');
+  baseMsg = baseMsg.replace(/student projects?/gi, 'Live Project / Dissertation');
+
+  // Interactive Opt-In / Opt-Out choices for students
+  const optFooter = `\n\n━━━━━━━━━━━━━━━━━━━━━\n👉 Reply "INTERESTED" to receive batch dates, syllabus & fee structure.\n👉 Reply "NOT INTERESTED" or "STOP" to unsubscribe.`;
+
+  return baseMsg.trim() + optFooter;
 }
 
 // Global Concurrency Guard to prevent multiple simultaneous drip execution cycles
@@ -1038,6 +1026,44 @@ async function processMessage(sock, io, chatId, name, text, explicitPhone = null
   await db.logMessage(canonicalChatId, name, 'customer', text);
   await db.upsertChat(canonicalChatId, name, cleanPhone, text, true);
 
+  const lowerMsg = text.toLowerCase().trim();
+
+  // 1a. Handle Student Opt-Out / Stop / Unsubscribe / Not Interested
+  const isOptOut = /^(stop|unsubscribe|cancel|not interested|not intrested|nahi chahiye|mat bhejo|don'?t send|no drip|optout_not_interested|not req|not required|remove me)\b/i.test(lowerMsg) ||
+    lowerMsg === 'stop' || lowerMsg === 'unsubscribe' || lowerMsg === 'not interested' || lowerMsg === 'not intrested';
+
+  if (isOptOut) {
+    console.log(`🛑 [DRIP OPT-OUT] Student ${name} (${cleanPhone}) opted out: "${text}". Removing from drip permanently.`);
+    await db.markDripOptOut(canonicalChatId, cleanPhone, text);
+
+    const optOutAck = `Thank you for letting us know. You have been successfully unsubscribed from Helix BioFast Labs automated updates and will not receive any further follow-up messages.\n\nIf you ever need academic guidance or laboratory training in the future, simply reply "START".`;
+
+    await sendBotReply(sock, io, canonicalChatId, name, cleanPhone, optOutAck);
+
+    const updatedStats = await db.getDashboardStats();
+    io.emit('stats-updated', updatedStats);
+    io.emit('drip-consent-updated');
+    return;
+  }
+
+  // 1b. Handle Student Opt-In / Interested
+  const isOptIn = /^(interested|intrested|i am interested|i'm interested|yes interested|optin_interested)\b/i.test(lowerMsg) ||
+    lowerMsg === 'interested' || lowerMsg === 'intrested';
+
+  if (isOptIn) {
+    console.log(`✅ [DRIP OPT-IN] Student ${name} (${cleanPhone}) confirmed interest: "${text}".`);
+    await db.markDripOptIn(canonicalChatId, cleanPhone);
+
+    const optInAck = `Thank you for confirming your interest in Helix BioFast Labs! 🧬\n\nWe provide 100% practical, hands-on wet-lab biotechnology training, research modules, and project guidance.\n\nWhich program would you like to explore?\n\n1️⃣ Short Term Training (7 Days)\n2️⃣ Advance Training (15 Days)\n3️⃣ Industrial Biotech Training (30 Days)\n4️⃣ Live Project / Dissertation (3-6 Months)\n5️⃣ Talk to Our Academic Counselor\n\nReply with 1, 2, 3, 4, or 5 (or ask your question in plain text).`;
+
+    await sendBotReply(sock, io, canonicalChatId, name, cleanPhone, optInAck);
+
+    const updatedStats = await db.getDashboardStats();
+    io.emit('stats-updated', updatedStats);
+    io.emit('drip-consent-updated');
+    return;
+  }
+
   // 2. Classify and update Lead in CRM DB
   const category = determineCategoryFromIntent(directIntent, text);
   await db.upsertLead(canonicalChatId, name, cleanPhone, category);
@@ -1183,7 +1209,6 @@ async function processMessage(sock, io, chatId, name, text, explicitPhone = null
   }
 
   // 8. Fallback if AI fails or is disabled
-  const lowerMsg = text.toLowerCase().trim();
   const isThankYou = /^(thank\s*you|thanks|thanku|thx|ok\s*thank|dhanyawad|shukriya)\b/i.test(lowerMsg) || lowerMsg.includes('thank you') || lowerMsg.includes('thanks') || lowerMsg.includes('thank u');
   const isAck = /^(ok|okay|k|alright|got it|sure|theek hai|thik h|done)\b/i.test(lowerMsg);
 
@@ -2209,6 +2234,44 @@ app.put('/api/drip/templates/:id', async (req, res) => {
     const { title, message } = req.body;
     await db.updateDripTemplate(req.params.id, title, message);
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Drip Consent & Student Interest Directory Endpoints
+app.get('/api/drip/consent-status', async (req, res) => {
+  try {
+    const data = await db.getDripConsentData();
+    res.json({ success: true, ...data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/drip/toggle-consent', async (req, res) => {
+  try {
+    const { chatId, phone, action, reason } = req.body;
+    if (action === 'opt_out') {
+      await db.markDripOptOut(chatId, phone, reason || 'Manually updated from CRM');
+    } else if (action === 'opt_in') {
+      await db.markDripOptIn(chatId, phone);
+    }
+    io.emit('drip-consent-updated');
+    io.emit('stats-updated', await db.getDashboardStats());
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/drip/export-consent', async (req, res) => {
+  try {
+    const type = req.query.type || 'all';
+    const csvContent = await db.exportConsentToCsv(type);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="helix_student_consent_${type}_${Date.now()}.csv"`);
+    res.send(csvContent);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

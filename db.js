@@ -66,6 +66,12 @@ async function initDb() {
       await run(`ALTER TABLE leads ADD COLUMN talk_to_team INTEGER DEFAULT 0`);
       await run(`ALTER TABLE leads ADD COLUMN talk_to_team_at DATETIME`);
     }
+    if (lCols && !lCols.some(c => c.name === 'interest_status')) {
+      await run(`ALTER TABLE leads ADD COLUMN interest_status TEXT DEFAULT 'pending'`);
+      await run(`ALTER TABLE leads ADD COLUMN opted_at DATETIME`);
+      await run(`ALTER TABLE leads ADD COLUMN opt_out_reason TEXT`);
+      await run(`ALTER TABLE leads ADD COLUMN unsubscribed INTEGER DEFAULT 0`);
+    }
     // Backfill historical Option 6 choices
     await run(`
       UPDATE leads 
@@ -172,6 +178,11 @@ async function initDb() {
     if (dCols && !dCols.some(c => c.name === 'bot_phone')) {
       await run(`ALTER TABLE drip_subscribers ADD COLUMN bot_phone TEXT`);
       await run(`UPDATE drip_subscribers SET bot_phone = '918383897225' WHERE bot_phone IS NULL`);
+    }
+    if (dCols && !dCols.some(c => c.name === 'interest_status')) {
+      await run(`ALTER TABLE drip_subscribers ADD COLUMN interest_status TEXT DEFAULT 'pending'`);
+      await run(`ALTER TABLE drip_subscribers ADD COLUMN opted_at DATETIME`);
+      await run(`ALTER TABLE drip_subscribers ADD COLUMN opt_out_reason TEXT`);
     }
   } catch (e) {}
 
@@ -296,6 +307,11 @@ async function initDb() {
     AI_MODEL: 'gemini-3.5-flash-lite',
     AI_SYSTEM_PROMPT: `You are the official Academic Counselor and Admissions Representative for Helix BioFast Labs Pvt. Ltd. (Noida / Delhi NCR, India). Website: https://www.helixbiofastlabs.com.
 
+OFFICIAL COUNSELOR IDENTITY (STRICT MANDATE):
+- Your official designation is strictly "Academic Counselor, Helix BioFast Labs".
+- NEVER refer to yourself as "Dr. Ravindra Kumar" or any individual candidate or doctor name. You speak officially on behalf of the institution.
+- You are answering queries from prospective students, research scholars, and candidates.
+
 CRITICAL FORMATTING & STYLE RULES:
 - NO STARS: Do NOT use any asterisks or stars (* or **) anywhere in your message. Absolutely NO markdown bolding with stars. Write in clean, professional plain text.
 - TONE: Strictly professional, academic, courteous, and well-structured.
@@ -335,7 +351,7 @@ CRITICAL FORMATTING & STYLE RULES:
 
 4. PROGRAM DETAILS & OFFICIAL LINKS:
 - Short Term Training (7-Day Modules):
-  Master specific practical techniques (Microbiology, Molecular Biology, Medical Biotech, Food Biotech, Immunology, Cancer Biology, Animal Cell Culture, Bioinformatics).
+  Master specific practical techniques (Microbiology, Molecular Biology, Medical Biotechnology, Food Biotech, Immunology, Cancer Biology, Animal Cell Culture).
   Link: https://www.helixbiofastlabs.com/short-term-biotechnology-training
 - Advance Training Program (15-Day Modules):
   Advanced practical lab protocols, instrumentation, and troubleshooting.
@@ -346,7 +362,7 @@ CRITICAL FORMATTING & STYLE RULES:
 - Job-Oriented Training Program:
   100% hands-on wet lab skills, SOP/GLP protocols, placement assistance for freshers.
   Link: https://www.helixbiofastlabs.com/job-oriented-training
-- Projects and Dissertation (3 Months / 6 Months):
+- Live Project / Dissertation (3 Months / 6 Months):
   For B.Sc., M.Sc., B.Tech, M.Tech students. Complete bench work, data analysis, publication support, thesis writing.
   Link: https://www.helixbiofastlabs.com/project-dissertation-training-in-biotechnology
 
@@ -366,12 +382,12 @@ Please select:
 
 1️⃣ Training Courses
 2️⃣ Training Brochure (PDF)
-3️⃣ Student Projects & Dissertation
+3️⃣ Live Project / Dissertation
 4️⃣ PhD Assistance
 5️⃣ Forensic Services
-6️⃣ Talk to Our Team 👨‍🔬
+6️⃣ Talk to Our Team (Academic Counselor)
 
-Type the number (1-6) or ask your question directly. 😊`
+Reply with a number (1-6) or type your question in plain English or Hindi.`
   };
 
   for (const [key, val] of Object.entries(defaultConfig)) {
@@ -416,7 +432,7 @@ Type the number (1-6) or ask your question directly. 😊`
         type: 'inquiry',
         day: 5,
         title: 'Customized Module Options & University Alignment',
-        message: 'Hello {name}, are you looking to align your training modules with your university curriculum or thesis requirements?\n\nOur senior research scientists can customize your module combination (such as Molecular Biology combined with Bioinformatics or Microbiology).\n\nYou can also speak directly with our academic coordinator at +91 8383897225 or reply to this message.'
+        message: 'Hello {name}, are you looking to align your training modules with your university curriculum or thesis requirements?\n\nOur senior research scientists can customize your module combination (such as Molecular Biology combined with Medical Biotechnology or Microbiology).\n\nYou can also speak directly with our academic coordinator at +91 8383897225 or reply to this message.'
       },
       {
         type: 'inquiry',
@@ -879,6 +895,155 @@ async function updateLeadTalkToTeamStatus(leadId, newStatus, notes = null) {
   );
 }
 
+// Student Opt-Out / Unsubscribe Handler
+async function markDripOptOut(chatId, phone = null, reason = 'Not Interested') {
+  const now = new Date().toISOString();
+  const rawNum = phone || (chatId ? chatId.split('@')[0] : '');
+  const cleanPhone = normalizeIndianPhone(rawNum);
+  const canonicalChatId = (cleanPhone && cleanPhone.length >= 10) ? `${cleanPhone}@s.whatsapp.net` : chatId;
+  const shortPhone = cleanPhone && cleanPhone.startsWith('91') && cleanPhone.length === 12 ? cleanPhone.substring(2) : cleanPhone;
+
+  // 1. Immediately unsubscribe from drip_subscribers
+  await run(
+    `UPDATE drip_subscribers 
+     SET status = 'unsubscribed', interest_status = 'not_interested', opted_at = ?, opt_out_reason = ? 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? OR phone = ?`,
+    [now, reason, chatId, canonicalChatId, cleanPhone, shortPhone]
+  );
+
+  // 2. Mark lead as Not Interested and Unsubscribed
+  await run(
+    `UPDATE leads 
+     SET interest_status = 'not_interested', unsubscribed = 1, opted_at = ?, opt_out_reason = ?, status = 'Lost' 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? OR phone = ?`,
+    [now, reason, chatId, canonicalChatId, cleanPhone, shortPhone]
+  );
+
+  return { success: true, phone: cleanPhone };
+}
+
+// Student Opt-In / Interested Handler
+async function markDripOptIn(chatId, phone = null) {
+  const now = new Date().toISOString();
+  const rawNum = phone || (chatId ? chatId.split('@')[0] : '');
+  const cleanPhone = normalizeIndianPhone(rawNum);
+  const canonicalChatId = (cleanPhone && cleanPhone.length >= 10) ? `${cleanPhone}@s.whatsapp.net` : chatId;
+  const shortPhone = cleanPhone && cleanPhone.startsWith('91') && cleanPhone.length === 12 ? cleanPhone.substring(2) : cleanPhone;
+
+  // 1. Mark active and interested in drip_subscribers
+  await run(
+    `UPDATE drip_subscribers 
+     SET status = 'active', interest_status = 'interested', opted_at = ?, opt_out_reason = NULL 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? OR phone = ?`,
+    [now, chatId, canonicalChatId, cleanPhone, shortPhone]
+  );
+
+  // 2. Mark lead as Interested and Active
+  await run(
+    `UPDATE leads 
+     SET interest_status = 'interested', unsubscribed = 0, opted_at = ?, status = 'In Progress' 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? OR phone = ?`,
+    [now, chatId, canonicalChatId, cleanPhone, shortPhone]
+  );
+
+  return { success: true, phone: cleanPhone };
+}
+
+// Fetch all interested vs not interested candidate data for CRM reporting
+async function getDripConsentData() {
+  const interested = await all(`
+    SELECT DISTINCT
+      COALESCE(l.name, s.name, 'Student') as name,
+      COALESCE(l.phone, s.phone, REPLACE(l.chat_id, '@s.whatsapp.net', '')) as phone,
+      COALESCE(l.category, s.campaign_type, 'Biotechnology Training') as category,
+      COALESCE(l.opted_at, s.opted_at, l.updated_at) as opted_at,
+      'Interested' as status,
+      COALESCE(l.notes, '') as notes
+    FROM leads l
+    LEFT JOIN drip_subscribers s ON s.chat_id = l.chat_id OR s.phone = l.phone
+    WHERE l.interest_status = 'interested' OR s.interest_status = 'interested'
+    ORDER BY opted_at DESC
+  `);
+
+  const notInterested = await all(`
+    SELECT DISTINCT
+      COALESCE(l.name, s.name, 'Student') as name,
+      COALESCE(l.phone, s.phone, REPLACE(l.chat_id, '@s.whatsapp.net', '')) as phone,
+      COALESCE(l.opted_at, s.opted_at, l.updated_at) as opted_at,
+      COALESCE(l.opt_out_reason, s.opt_out_reason, 'Unsubscribed by Student') as reason,
+      'Not Interested' as status
+    FROM leads l
+    LEFT JOIN drip_subscribers s ON s.chat_id = l.chat_id OR s.phone = l.phone
+    WHERE l.interest_status = 'not_interested' OR s.interest_status = 'not_interested' OR s.status = 'unsubscribed' OR l.unsubscribed = 1
+    ORDER BY opted_at DESC
+  `);
+
+  return {
+    interested,
+    notInterested,
+    counts: {
+      interested: interested.length,
+      notInterested: notInterested.length
+    }
+  };
+}
+
+async function exportConsentToCsv(type = 'all') {
+  const data = await getDripConsentData();
+  let rows = [];
+  if (type === 'interested') {
+    rows = data.interested.map((r, i) => ({
+      'S.No': i + 1,
+      'Student Name': r.name,
+      'WhatsApp Phone': r.phone,
+      'Course / Category': r.category,
+      'Status': 'Interested (Opted-In)',
+      'Opted-In At': r.opted_at || '',
+      'Notes': r.notes || ''
+    }));
+  } else if (type === 'not_interested') {
+    rows = data.notInterested.map((r, i) => ({
+      'S.No': i + 1,
+      'Student Name': r.name,
+      'WhatsApp Phone': r.phone,
+      'Status': 'Not Interested (Unsubscribed / Blacklisted)',
+      'Reason / Message': r.reason || 'Unsubscribed by Student',
+      'Opted-Out At': r.opted_at || ''
+    }));
+  } else {
+    rows = [
+      ...data.interested.map((r, i) => ({
+        'S.No': i + 1,
+        'Student Name': r.name,
+        'WhatsApp Phone': r.phone,
+        'Interest Status': 'Interested',
+        'Details / Reason': r.category || 'Interested in Training',
+        'Timestamp': r.opted_at || ''
+      })),
+      ...data.notInterested.map((r, i) => ({
+        'S.No': data.interested.length + i + 1,
+        'Student Name': r.name,
+        'WhatsApp Phone': r.phone,
+        'Interest Status': 'Not Interested (Opted Out)',
+        'Details / Reason': r.reason || 'Unsubscribed',
+        'Timestamp': r.opted_at || ''
+      }))
+    ];
+  }
+
+  if (rows.length === 0) {
+    return 'S.No,Student Name,WhatsApp Phone,Status,Timestamp\n';
+  }
+
+  const headers = Object.keys(rows[0]);
+  const csvLines = [headers.join(',')];
+  for (const row of rows) {
+    const line = headers.map(h => `"${String(row[h] || '').replace(/"/g, '""')}"`).join(',');
+    csvLines.push(line);
+  }
+  return csvLines.join('\n');
+}
+
 async function getRecentChatMessages(chatId, limit = 10) {
   let phone = null;
   const chat = await get('SELECT phone FROM chats WHERE chat_id = ?', [chatId]);
@@ -940,6 +1105,16 @@ async function enrollInDrip(chatId, name, phone, campaignType = 'inquiry', delay
     }
   } catch (e) {}
 
+  // Check if contact has explicitly opted out / unsubscribed
+  const unsubscribedLead = await get(
+    "SELECT id FROM leads WHERE (chat_id = ? OR phone = ?) AND (unsubscribed = 1 OR interest_status = 'not_interested')",
+    [normalizedChatId, cleanPhone]
+  );
+  if (unsubscribedLead) {
+    console.log(`🚫 [DRIP BLOCKED] Contact ${cleanPhone} has unsubscribed or opted out (Not Interested). Skipping enrollment.`);
+    return null;
+  }
+
   // Check if subscriber already exists
   const existing = await get(
     'SELECT * FROM drip_subscribers WHERE (chat_id = ? OR phone = ?) AND campaign_type = ?',
@@ -947,6 +1122,10 @@ async function enrollInDrip(chatId, name, phone, campaignType = 'inquiry', delay
   );
 
   if (existing) {
+    if (existing.status === 'unsubscribed' || existing.interest_status === 'not_interested') {
+      console.log(`🚫 [DRIP BLOCKED] Contact ${cleanPhone} is marked unsubscribed/not_interested in drip. Skipping enrollment.`);
+      return existing.id;
+    }
     if (existing.status === 'enrolled') return existing.id;
     if (existing.status === 'deleted') {
       if (isIncomingChat) {
@@ -965,14 +1144,14 @@ async function enrollInDrip(chatId, name, phone, campaignType = 'inquiry', delay
     }
     return existing.id;
   } else {
-    // If not existing in this campaign, verify if contact was deleted under ANY campaign
+    // If not existing in this campaign, verify if contact was deleted/unsubscribed under ANY campaign
     if (!isIncomingChat) {
       const anyDeleted = await get(
-        "SELECT id FROM drip_subscribers WHERE (chat_id = ? OR phone = ?) AND status = 'deleted'",
+        "SELECT id FROM drip_subscribers WHERE (chat_id = ? OR phone = ?) AND (status = 'deleted' OR status = 'unsubscribed' OR interest_status = 'not_interested')",
         [normalizedChatId, cleanPhone]
       );
       if (anyDeleted) {
-        console.log(`🚫 [DRIP BLOCKED] Contact ${cleanPhone} was previously deleted from drip campaigns. Skipping enrollment.`);
+        console.log(`🚫 [DRIP BLOCKED] Contact ${cleanPhone} was previously deleted or unsubscribed from drip campaigns. Skipping enrollment.`);
         return anyDeleted.id;
       }
     }
@@ -2030,5 +2209,9 @@ module.exports = {
   getContactsAudience,
   generateFullBackupData,
   saveBaileysMessage,
-  getBaileysMessage
+  getBaileysMessage,
+  markDripOptOut,
+  markDripOptIn,
+  getDripConsentData,
+  exportConsentToCsv
 };
