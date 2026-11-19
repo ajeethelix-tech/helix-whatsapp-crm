@@ -4138,10 +4138,26 @@ async function testAiConnection() {
     });
     const data = await res.json();
     if (data.success) {
-      elements.aiTestStatus.textContent = 'Connected successfully!';
+      elements.aiTestStatus.textContent = 'Connected successfully! Settings saved & AI is active.';
       elements.aiTestStatus.style.color = '#059669';
       elements.aiTestReplyText.textContent = data.reply;
       elements.aiTestResultBox.style.display = 'block';
+      // Automatically persist to database so bot uses it right away
+      try {
+        await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            AI_ENABLED: elements.cfgAiEnabled ? elements.cfgAiEnabled.value : '1',
+            AI_MODEL: model,
+            GEMINI_API_KEY: apiKey,
+            AI_SYSTEM_PROMPT: systemPrompt
+          })
+        });
+        updateAiStatusBadge(true);
+      } catch (err) {
+        console.warn('Auto-save error:', err);
+      }
     } else {
       elements.aiTestStatus.textContent = 'Connection failed: ' + (data.error || 'Unknown error');
       elements.aiTestStatus.style.color = '#DC2626';

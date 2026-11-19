@@ -630,9 +630,7 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
       return null;
     }
 
-    const modelName = (config.AI_MODEL && config.AI_MODEL !== 'gemini-flash-latest' && !config.AI_MODEL.includes('2.0') && !config.AI_MODEL.includes('1.5') && !config.AI_MODEL.includes('2.5'))
-      ? config.AI_MODEL
-      : 'gemini-3.6-flash';
+    const modelName = config.AI_MODEL || 'gemini-3.5-flash-lite';
 
     let systemPrompt = config.AI_SYSTEM_PROMPT || 'You are the official Academic Counselor for Helix BioFast Labs Pvt. Ltd.';
     systemPrompt += `\n\nCRITICAL IDENTITY & PROTOCOL INSTRUCTIONS:\n- OFFICIAL ROLE: You are strictly "Academic Counselor, Helix BioFast Labs".\n- NEVER introduce yourself as "Dr. Ravindra Kumar" or any individual doctor or candidate name.\n- You represent Helix BioFast Labs officially as an institution academic counselor.`;
@@ -660,11 +658,17 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
       }
     }
 
-    // Append current user message
-    contents.push({
-      role: 'user',
-      parts: [{ text: userMessage }]
-    });
+    // Append current user message if not already present
+    if (contents.length === 0 || contents[contents.length - 1].role !== 'user' || !contents[contents.length - 1].parts[0].text.includes(userMessage)) {
+      if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+        contents[contents.length - 1].parts[0].text += '\n' + userMessage;
+      } else {
+        contents.push({
+          role: 'user',
+          parts: [{ text: userMessage }]
+        });
+      }
+    }
 
     // In Gemini API, multi-turn contents must start with role 'user'.
     // If the conversation started with a message sent by the bot (e.g. campaign broadcast, workshop confirmation, drip, or brochure),
@@ -698,6 +702,7 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
       modelName,
       'gemini-3.5-flash-lite',
       'gemini-flash-lite-latest',
+      'gemini-2.5-flash',
       'gemini-3.6-flash'
     ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
@@ -1194,7 +1199,8 @@ async function processMessage(sock, io, chatId, name, text, explicitPhone = null
 
   // 7. Gemini AI Auto-Responder (for natural language, questions & inquiries)
   const botConfig = await db.getBotConfig();
-  if (botConfig.AI_ENABLED === '1' && botConfig.GEMINI_API_KEY) {
+  const activeApiKey = botConfig.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+  if (botConfig.AI_ENABLED === '1' && activeApiKey) {
     try {
       console.log(`🧠 Generating Gemini AI response for ${chatId}...`);
       const aiReply = await generateGeminiReply(chatId, text, name);
