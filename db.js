@@ -2,7 +2,16 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-const DB_PATH = path.join(__dirname, 'crm_database.sqlite');
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+if (!fs.existsSync(DATA_DIR)) {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  } catch (e) {
+    console.error('Error creating DATA_DIR:', e.message);
+  }
+}
+
+const DB_PATH = process.env.DB_PATH || path.join(DATA_DIR, 'crm_database.sqlite');
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) {

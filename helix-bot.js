@@ -1387,12 +1387,15 @@ function scheduleRestart(io, delay = 5000) {
   }, delay);
 }
 
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const SESSION_DIR = path.join(DATA_DIR, '.session');
+
 // Auto-repair Bad MAC session by deleting corrupted session file
 function repairSignalSession(jidOrLid) {
   if (!jidOrLid) return;
   const clean = jidOrLid.split('@')[0].replace(/[^0-9]/g, '');
   if (!clean) return;
-  const sessionDir = path.join(__dirname, '.session');
+  const sessionDir = SESSION_DIR;
   try {
     if (fs.existsSync(sessionDir)) {
       const files = fs.readdirSync(sessionDir);
@@ -1433,7 +1436,7 @@ async function startBot(io) {
     const makeWASocket = baileys.default?.default || baileys.default || baileys.makeWASocket;
     const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = baileys;
 
-    const { state, saveCreds } = await useMultiFileAuthState('./.session');
+    const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
     let version = [2, 3000, 1015901307];
     try {
       const v = await fetchLatestBaileysVersion();
@@ -1502,7 +1505,7 @@ async function startBot(io) {
           qrData = null;
           io.emit('bot-status', { connected: false, qrData: null });
           try {
-            const sessionDir = path.join(__dirname, '.session');
+            const sessionDir = SESSION_DIR;
             if (fs.existsSync(sessionDir)) {
               fs.rmSync(sessionDir, { recursive: true, force: true });
               console.log('🗑️ Previous WhatsApp .session removed.');
@@ -3412,7 +3415,7 @@ app.post('/api/bot/disconnect', async (req, res) => {
     }
 
     // Clean up .session directory
-    const sessionDir = path.join(__dirname, '.session');
+    const sessionDir = SESSION_DIR;
     if (fs.existsSync(sessionDir)) {
       try {
         fs.rmSync(sessionDir, { recursive: true, force: true });
