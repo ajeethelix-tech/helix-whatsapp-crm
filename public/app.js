@@ -1050,7 +1050,7 @@ function exportTalkToTeamToExcel() {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Option6_Talk_To_Team");
   const today = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(wb, `Helix_Talk_To_Team_Students_${today}.xlsx`);
+  XLSX.writeFile(wb, `Biofast_Talk_To_Team_Students_${today}.xlsx`);
 }
 window.exportTalkToTeamToExcel = exportTalkToTeamToExcel;
 
@@ -2068,6 +2068,21 @@ socket.on('chat-updated', () => {
   }
 });
 
+socket.on('chat-deleted', (data) => {
+  if (data && (state.selectedChatId === data.chat_id || state.selectedChatId === data.normalizedChatId)) {
+    state.selectedChatId = null;
+    if (elements.chatActiveView) elements.chatActiveView.style.display = 'none';
+    if (elements.noChatSelected) elements.noChatSelected.style.display = 'flex';
+  }
+  fetchChats();
+  fetchLeads();
+  fetchStats();
+  if (state.currentTab === 'drip') {
+    fetchDripSubscribers();
+    fetchDripStats();
+  }
+});
+
 socket.on('connect', () => {
   console.log('Socket connected to backend');
 });
@@ -2978,7 +2993,7 @@ async function exportLabVisitsToExcel() {
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lab Visited Students');
-    XLSX.writeFile(workbook, 'Helix_Lab_Visited_Students.xlsx');
+    XLSX.writeFile(workbook, 'Biofast_Lab_Visited_Students.xlsx');
   } catch (err) {
     console.error('Error generating Excel file:', err);
     window.location.href = '/api/export/lab-visits-csv';
@@ -3168,7 +3183,7 @@ async function exportCallInquiriesToExcel() {
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Call Inquiry Students');
-    XLSX.writeFile(workbook, 'Helix_Call_Inquiry_Students.xlsx');
+    XLSX.writeFile(workbook, 'Biofast_Call_Inquiry_Students.xlsx');
   } catch (err) {
     console.error('Error generating Call Inquiries Excel file:', err);
     window.location.href = '/api/export/call-inquiries-csv';
@@ -3627,7 +3642,7 @@ function downloadDripSampleExcel() {
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Students_Drip_Import");
-  XLSX.writeFile(wb, "Helix_Drip_Import_Template.xlsx");
+  XLSX.writeFile(wb, "Biofast_Drip_Import_Template.xlsx");
 }
 
 async function handleDripExcelFileSelected(e) {
@@ -5187,7 +5202,7 @@ async function handleTriggerCloudBackup() {
 
   try {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const filename = `helix_crm_backup_${timestamp}.json`;
+    const filename = `biofast_crm_backup_${timestamp}.json`;
 
     // Download the full JSON export snapshot
     const downloadUrl = '/api/backup/export';
@@ -5419,6 +5434,81 @@ async function handleSendChatBrochure() {
     elements.btnSendChatBrochure.innerHTML = originalBtnHtml;
   }
 }
+
+// Permanently delete current active chat and wipe all student records from system
+async function deleteCurrentActiveChat() {
+  if (!state.selectedChatId) {
+    alert('Please select a student conversation from the left thread list first.');
+    return;
+  }
+
+  const chatId = state.selectedChatId;
+  const currentChat = state.chats.find(c => c.chat_id === chatId);
+  const studentName = (currentChat && currentChat.name) || (elements.chatHeaderName ? elements.chatHeaderName.textContent.trim() : 'Candidate');
+  const studentPhone = (currentChat && currentChat.phone) || (elements.chatHeaderPhone ? elements.chatHeaderPhone.textContent.trim() : '');
+
+  const confirmMsg =
+    `Are you sure you want to PERMANENTLY DELETE this chat?\n\n` +
+    `Student: ${studentName} (${studentPhone || chatId})\n\n` +
+    `⚠️ Once deleted:\n` +
+    `• All WhatsApp messages & conversation history will be permanently deleted.\n` +
+    `• The lead will be removed from your CRM pipeline.\n` +
+    `• All scheduled drip campaigns will be stopped and deleted (no drip messages will be sent).\n` +
+    `• No data will remain in the system.\n\n` +
+    `This action cannot be undone. Click OK to confirm deletion.`;
+
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  const deleteBtn = document.getElementById('btnDeleteSelectedChat');
+  const originalBtnHtml = deleteBtn ? deleteBtn.innerHTML : '';
+  if (deleteBtn) {
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Deleting...';
+  }
+
+  try {
+    const res = await fetch(`/api/chats/${encodeURIComponent(chatId)}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      // 1. Remove from local chats state
+      state.chats = state.chats.filter(c => c.chat_id !== chatId && c.chat_id !== data.normalizedChatId);
+      state.selectedChatId = null;
+
+      // 2. Reset active chat view to empty state
+      if (elements.chatActiveView) elements.chatActiveView.style.display = 'none';
+      if (elements.noChatSelected) elements.noChatSelected.style.display = 'flex';
+
+      // 3. Re-render chat threads list & update badge counts
+      filterAndRenderChats();
+      updateChatFilterCounts();
+
+      // 4. Reload other tabs data
+      fetchChats();
+      fetchLeads();
+      fetchStats();
+      if (typeof fetchDripSubscribers === 'function') fetchDripSubscribers();
+      if (typeof fetchDripStats === 'function') fetchDripStats();
+
+      alert(`Chat for ${studentName} and all associated records have been permanently deleted from the system.`);
+    } else {
+      alert('Failed to delete chat: ' + (data.error || 'Server error'));
+    }
+  } catch (err) {
+    console.error('Error deleting chat:', err);
+    alert('Network error while deleting chat: ' + err.message);
+  } finally {
+    if (deleteBtn) {
+      deleteBtn.disabled = false;
+      deleteBtn.innerHTML = originalBtnHtml || '<i class="fa-solid fa-trash-can"></i> Delete Chat';
+    }
+  }
+}
+window.deleteCurrentActiveChat = deleteCurrentActiveChat;
 
 // ----------------------------------------------------
 // WHATSAPP CONTACTS MANAGEMENT
@@ -5861,7 +5951,7 @@ function downloadSampleExcelTemplate() {
   const ws = XLSX.utils.json_to_sheet(sampleData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Student_Contacts");
-  XLSX.writeFile(wb, "Helix_Student_Contacts_Sample.xlsx");
+  XLSX.writeFile(wb, "Biofast_Student_Contacts_Sample.xlsx");
 }
 
 

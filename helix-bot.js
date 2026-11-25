@@ -59,7 +59,7 @@ function getSession(chatId) {
 // Default Bot Messages
 const MESSAGES = {
   mainMenu:
-    'Hello! 👋 Thank you for contacting Helix BioFast Labs Pvt. Ltd., Noida.\n\n' +
+    'Hello! 👋 Thank you for contacting Biofast Laboratories (formerly Helix BioGenesis), Noida.\n\n' +
     'I can instantly help you with our training programs, fees, and services.\n\n' +
     'Please select an option:\n\n' +
     '1️⃣ Training Courses\n' +
@@ -182,7 +182,7 @@ const MESSAGES = {
     '🌐 Website: https://www.helixbiofastlabs.com',
 
   human:
-    'Thank you! Our staff at Helix BioFast Labs has received your message and will reach out to you shortly.\n\n' +
+    'Thank you! Our staff at Biofast Laboratories (formerly Helix BioGenesis) has received your message and will reach out to you shortly.\n\n' +
     '📞 Phone: 8383897225 | 📧 biofastlabs@gmail.com\n' +
     '🌐 Website: https://www.helixbiofastlabs.com',
 
@@ -197,13 +197,13 @@ const MESSAGES = {
     '🌐 Website: https://www.helixbiofastlabs.com',
 
   location:
-    '📍 Helix BioFast Labs Pvt. Ltd. Location:\n\n' +
+    '📍 Biofast Laboratories (formerly Helix BioGenesis) Location:\n\n' +
     'A-52, First Floor, Sector-2, Noida\n' +
     'G.B. Nagar, Uttar Pradesh - 201301\n' +
     '(Near Sector-15 Metro Station)\n\n' +
     '🗺️ Google Maps Location:\n' +
     'https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n\n' +
-    '📞 Contact: +91-9717117289, +91-8383897225\n' +
+    '📞 Contact: +91-8383897225\n' +
     '🌐 Website: https://www.helixbiofastlabs.com'
 };
 
@@ -584,12 +584,12 @@ async function sendBotReply(sock, io, chatId, name, phone, replyText, interactiv
     }
 
     const canonicalChatId = (cleanPhone && cleanPhone.length >= 10) ? `${cleanPhone}@s.whatsapp.net` : chatId;
-    await db.logMessage(canonicalChatId, 'Helix Bot', 'bot', replyText);
+    await db.logMessage(canonicalChatId, 'Biofast Bot', 'bot', replyText);
     await db.upsertChat(canonicalChatId, name, cleanPhone, replyText, false);
 
     io.emit('new-message', {
       chat_id: canonicalChatId,
-      sender_name: 'Helix Bot',
+      sender_name: 'Biofast Bot',
       sender_type: 'bot',
       text: replyText,
       timestamp: new Date().toISOString()
@@ -597,7 +597,7 @@ async function sendBotReply(sock, io, chatId, name, phone, replyText, interactiv
     if (canonicalChatId !== chatId) {
       io.emit('new-message', {
         chat_id: chatId,
-        sender_name: 'Helix Bot',
+        sender_name: 'Biofast Bot',
         sender_type: 'bot',
         text: replyText,
         timestamp: new Date().toISOString()
@@ -632,8 +632,8 @@ async function generateGeminiReply(chatId, userMessage, studentName) {
 
     const modelName = config.AI_MODEL || 'gemini-3.5-flash-lite';
 
-    let systemPrompt = config.AI_SYSTEM_PROMPT || 'You are the official Academic Counselor for Helix BioFast Labs Pvt. Ltd.';
-    systemPrompt += `\n\nCRITICAL IDENTITY & PROTOCOL INSTRUCTIONS:\n- OFFICIAL ROLE: You are strictly "Academic Counselor, Helix BioFast Labs".\n- NEVER introduce yourself as "Dr. Ravindra Kumar" or any individual doctor or candidate name.\n- You represent Helix BioFast Labs officially as an institution academic counselor.`;
+    let systemPrompt = config.AI_SYSTEM_PROMPT || 'You are the official Academic Counselor for Biofast Laboratories (formerly Helix BioGenesis).';
+    systemPrompt += `\n\nCRITICAL IDENTITY & PROTOCOL INSTRUCTIONS:\n- OFFICIAL ROLE: You are strictly "Academic Counselor, Biofast Laboratories (formerly Helix BioGenesis)".\n- NEVER introduce yourself as "Dr. Ravindra Kumar" or any individual doctor or candidate name.\n- You represent Biofast Laboratories (formerly Helix BioGenesis) officially as an institution academic counselor.`;
     if (studentName && studentName !== '~' && studentName !== '.' && studentName !== 'Student') {
       systemPrompt += `\n- CANDIDATE YOU ARE TALKING TO: "${studentName}". You are addressing this student. This is the prospective student/inquiry contact's name, NEVER YOUR NAME. Greet them politely by this name if appropriate.`;
     }
@@ -762,13 +762,18 @@ function buildProgramSpecificDripMessage(sub, nextStep, template, botPhone = '')
     msg = msg.replace(/{category}/gi, category || 'Biotechnology Training');
     baseMsg = msg.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\*/g, '');
   } else {
-    baseMsg = `Hello ${name}, thank you for contacting Helix BioFast Labs regarding our training programs. We offer comprehensive hands-on modules in biotechnology and life sciences. Feel free to reply to this message for details.\n\nHelix BioFast Labs\nwww.helixbiofastlabs.com`;
+    baseMsg = `Hello ${name}, thank you for contacting Biofast Laboratories (formerly Helix BioGenesis) regarding our training programs. We offer comprehensive hands-on modules in biotechnology and life sciences. Feel free to reply to this message for details.\n\nBiofast Laboratories (formerly Helix BioGenesis)\nwww.helixbiofastlabs.com`;
   }
 
   // Course name standardization as per updated curriculum
   baseMsg = baseMsg.replace(/Bioinformatics/gi, 'Medical Biotechnology');
   baseMsg = baseMsg.replace(/student projects?(&|\/|\band\b)?\s*dissertation/gi, 'Live Project / Dissertation');
   baseMsg = baseMsg.replace(/student projects?/gi, 'Live Project / Dissertation');
+  baseMsg = baseMsg.replace(/Helix BioFast Labs Pvt\. Ltd\./gi, 'Biofast Laboratories (formerly Helix BioGenesis)');
+  baseMsg = baseMsg.replace(/Helix BioFast Labs/gi, 'Biofast Laboratories (formerly Helix BioGenesis)');
+  baseMsg = baseMsg.replace(/Helix BioFast/gi, 'Biofast Laboratories (formerly Helix BioGenesis)');
+  baseMsg = baseMsg.replace(/\+?91-?9717117289/gi, '+91-8383897225');
+  baseMsg = baseMsg.replace(/9717117289/g, '8383897225');
 
   // Clean, professional reply actions without cluttered links
   const optFooter = `\n\n___________________________\n` +
@@ -885,7 +890,7 @@ async function processDripCampaigns(sock, io) {
         console.log(`📤 Sending Tailored Drip Day ${nextStep} (${sub.campaign_type}) to ${targetChatId} with interactive buttons...`);
         await sendDripWithButtons(sock, targetChatId, messageText);
 
-        await db.logMessage(targetChatId, 'Helix Bot', 'bot', messageText);
+        await db.logMessage(targetChatId, 'Biofast Bot', 'bot', messageText);
         await db.upsertChat(targetChatId, sub.name, cleanPhone, messageText, false);
         await db.logDripMessage(sub.id, targetChatId, sub.name, cleanPhone, sub.campaign_type, nextStep, messageText, 'sent');
 
@@ -894,7 +899,7 @@ async function processDripCampaigns(sock, io) {
 
         io.emit('new-message', {
           chat_id: targetChatId,
-          sender_name: 'Helix Bot',
+          sender_name: 'Biofast Bot',
           sender_type: 'bot',
           text: messageText,
           timestamp: new Date().toISOString()
@@ -1051,7 +1056,7 @@ async function processMessage(sock, io, chatId, name, text, explicitPhone = null
     console.log(`🛑 [DRIP OPT-OUT] Student ${name} (${cleanPhone}) opted out: "${text}". Removing from drip permanently.`);
     await db.markDripOptOut(canonicalChatId, cleanPhone, text);
 
-    const optOutAck = `Thank you for letting us know. You have been successfully unsubscribed from Helix BioFast Labs automated updates and will not receive any further follow-up messages.\n\nIf you ever need academic guidance or laboratory training in the future, simply reply "START".`;
+    const optOutAck = `Thank you for letting us know. You have been successfully unsubscribed from Biofast Laboratories (formerly Helix BioGenesis) automated updates and will not receive any further follow-up messages.\n\nIf you ever need academic guidance or laboratory training in the future, simply reply "START".`;
 
     await sendBotReply(sock, io, canonicalChatId, name, cleanPhone, optOutAck);
 
@@ -1069,7 +1074,7 @@ async function processMessage(sock, io, chatId, name, text, explicitPhone = null
     console.log(`✅ [DRIP OPT-IN] Student ${name} (${cleanPhone}) confirmed interest: "${text}".`);
     await db.markDripOptIn(canonicalChatId, cleanPhone);
 
-    const optInAck = `Thank you for confirming your interest in Helix BioFast Labs! 🧬\n\nWe provide 100% practical, hands-on wet-lab biotechnology training, research modules, and project guidance.\n\nWhich program would you like to explore?\n\n1️⃣ Short Term Training (7 Days)\n2️⃣ Advance Training (15 Days)\n3️⃣ Industrial Biotech Training (30 Days)\n4️⃣ Live Project / Dissertation (3-6 Months)\n5️⃣ Talk to Our Academic Counselor\n\nReply with 1, 2, 3, 4, or 5 (or ask your question in plain text).`;
+    const optInAck = `Thank you for confirming your interest in Biofast Laboratories (formerly Helix BioGenesis)! 🧬\n\nWe provide 100% practical, hands-on wet-lab biotechnology training, research modules, and project guidance.\n\nWhich program would you like to explore?\n\n1️⃣ Short Term Training (7 Days)\n2️⃣ Advance Training (15 Days)\n3️⃣ Industrial Biotech Training (30 Days)\n4️⃣ Live Project / Dissertation (3-6 Months)\n5️⃣ Talk to Our Academic Counselor\n\nReply with 1, 2, 3, 4, or 5 (or ask your question in plain text).`;
 
     await sendBotReply(sock, io, canonicalChatId, name, cleanPhone, optInAck);
 
@@ -1230,14 +1235,14 @@ async function processMessage(sock, io, chatId, name, text, explicitPhone = null
 
   if (isThankYou) {
     session.failedAttempts = 0;
-    const politeReply = `You are most welcome! We look forward to having you with us. If you have any questions or need further details, feel free to ask here anytime.\n\nHelix BioFast Labs\n🌐 https://www.helixbiofastlabs.com\n📞 8383897225`;
+    const politeReply = `You are most welcome! We look forward to having you with us. If you have any questions or need further details, feel free to ask here anytime.\n\nBiofast Laboratories (formerly Helix BioGenesis)\n🌐 https://www.helixbiofastlabs.com\n📞 8383897225`;
     await sendBotReply(sock, io, chatId, name, phone, politeReply);
     return;
   }
 
   if (isAck) {
     session.failedAttempts = 0;
-    const ackReply = `Great! Please let us know if you have any questions or need any assistance. We are happy to help.\n\nHelix BioFast Labs\n🌐 https://www.helixbiofastlabs.com`;
+    const ackReply = `Great! Please let us know if you have any questions or need any assistance. We are happy to help.\n\nBiofast Laboratories (formerly Helix BioGenesis)\n🌐 https://www.helixbiofastlabs.com`;
     await sendBotReply(sock, io, chatId, name, phone, ackReply);
     return;
   }
@@ -1246,7 +1251,7 @@ async function processMessage(sock, io, chatId, name, text, explicitPhone = null
   if (session.failedAttempts >= 2) {
     session.failedAttempts = 0;
     session.state = 'IDLE';
-    const failReply = 'I notice you need detailed help! I have forwarded your message directly to our team. Someone from Helix BioFast Labs will call/message you shortly.\n\n📞 8383897225 | 📧 biofastlabs@gmail.com\n🌐 https://www.helixbiofastlabs.com';
+    const failReply = 'I notice you need detailed help! I have forwarded your message directly to our team. Someone from Biofast Laboratories (formerly Helix BioGenesis) will call/message you shortly.\n\n📞 8383897225 | 📧 biofastlabs@gmail.com\n🌐 https://www.helixbiofastlabs.com';
     await sendBotReply(sock, io, chatId, name, phone, failReply);
     await notifyStaff(sock, name, chatId, `Auto-Handover (2 failed bot attempts). Last message: "${text}"`, 'AUTO HUMAN HANDOVER');
   } else {
@@ -1319,11 +1324,11 @@ async function handleDirectIntent(sock, io, chatId, name, phone, text, directInt
             document: buf,
             fileName: 'Helix_BioFast_Information_Brochure.pdf',
             mimetype: 'application/pdf',
-            caption: 'Helix BioFast Labs — Official Information Brochure\n\nFor technical training, skill up-gradation, building of new skills and innovative thinking in Biotechnology.\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-9717117289, +91-8383897225'
+            caption: 'Biofast Laboratories (formerly Helix BioGenesis) — Official Information Brochure\n\nFor technical training, skill up-gradation, building of new skills and innovative thinking in Biotechnology.\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-8383897225'
           });
-          await db.logMessage(chatId, 'Helix Bot', 'bot', '[Sent PDF Document: Helix_BioFast_Information_Brochure.pdf]');
+          await db.logMessage(chatId, 'Biofast Bot', 'bot', '[Sent PDF Document: Helix_BioFast_Information_Brochure.pdf]');
           if (targetChatId !== chatId) {
-            await db.logMessage(targetChatId, 'Helix Bot', 'bot', '[Sent PDF Document: Helix_BioFast_Information_Brochure.pdf]');
+            await db.logMessage(targetChatId, 'Biofast Bot', 'bot', '[Sent PDF Document: Helix_BioFast_Information_Brochure.pdf]');
           }
           console.log('✅ Official Information Brochure PDF sent successfully to', targetChatId);
           sent = true;
@@ -1337,7 +1342,7 @@ async function handleDirectIntent(sock, io, chatId, name, phone, text, directInt
                 document: buf,
                 fileName: 'Helix_BioFast_Information_Brochure.pdf',
                 mimetype: 'application/pdf',
-                caption: 'Helix BioFast Labs — Official Information Brochure\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-9717117289, +91-8383897225'
+                caption: 'Biofast Laboratories (formerly Helix BioGenesis) — Official Information Brochure\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-8383897225'
               });
               sent = true;
             } catch (fallbackErr) {
@@ -1354,15 +1359,15 @@ async function handleDirectIntent(sock, io, chatId, name, phone, text, directInt
             document: buf,
             fileName: 'Helix_BioFast_Information_Brochure.pdf',
             mimetype: 'application/pdf',
-            caption: 'Helix BioFast Labs — Official Information Brochure\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-9717117289, +91-8383897225'
+            caption: 'Biofast Laboratories (formerly Helix BioGenesis) — Official Information Brochure\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-8383897225'
           });
-          await db.logMessage(chatId, 'Helix Bot', 'bot', '[Sent PDF Document: Helix_BioFast_Information_Brochure.pdf]');
+          await db.logMessage(chatId, 'Biofast Bot', 'bot', '[Sent PDF Document: Helix_BioFast_Information_Brochure.pdf]');
           sent = true;
         } catch (err) {}
       }
 
       if (!sent) {
-        await sendBotReply(sock, io, chatId, name, phone, '📄 For full brochure & course details, please visit our website:\n🌐 https://www.helixbiofastlabs.com\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n📞 +91-9717117289, +91-8383897225');
+        await sendBotReply(sock, io, chatId, name, phone, '📄 For full brochure & course details, please visit our website:\n🌐 https://www.helixbiofastlabs.com\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n📞 +91-8383897225');
       }
       break;
     }
@@ -1442,7 +1447,7 @@ async function startBot(io) {
       auth: state,
       logger: pino({ level: 'silent' }),
       printQRInTerminal: false,
-      browser: ['Helix BioFast Labs CRM', 'Chrome', '1.0'],
+      browser: ['Biofast Laboratories CRM', 'Chrome', '1.0'],
       syncFullHistory: false,
       getMessage: getBaileysStoredMessage
     });
@@ -2042,6 +2047,49 @@ app.post('/api/chats/:chatId/toggle-bot', async (req, res) => {
   }
 });
 
+// Permanently delete selected chat and purge all student data from system
+app.delete('/api/chats/:chatId', async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const decodedChatId = decodeURIComponent(chatId);
+
+    // Clear memory conversation sessions
+    delete userSessions[decodedChatId];
+    const cleanPhone = db.normalizeIndianPhone(decodedChatId);
+    const barePhone = cleanPhone ? cleanPhone.replace(/[^0-9]/g, '') : '';
+    if (barePhone) {
+      delete userSessions[barePhone];
+      delete userSessions['91' + barePhone];
+      delete userSessions[barePhone + '@s.whatsapp.net'];
+      delete userSessions['91' + barePhone + '@s.whatsapp.net'];
+    }
+
+    const result = await db.purgeChatCompletely(decodedChatId);
+
+    // Notify all connected CRM clients in real-time
+    io.emit('chat-deleted', {
+      chat_id: decodedChatId,
+      normalizedChatId: result.normalizedChatId,
+      phone: result.phone
+    });
+    io.emit('chats-updated');
+    io.emit('leads-updated');
+    io.emit('drip-updated');
+
+    const updatedStats = await db.getDashboardStats();
+    io.emit('stats-updated', updatedStats);
+
+    res.json({
+      success: true,
+      message: 'Chat and all associated student data permanently deleted from the system.',
+      ...result
+    });
+  } catch (err) {
+    console.error('❌ Error in DELETE /api/chats/:chatId:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 4. Bot Config Endpoints
 app.get(['/api/config', '/api/bot/config'], async (req, res) => {
   try {
@@ -2072,7 +2120,7 @@ app.post('/api/test-ai', async (req, res) => {
     const currentConfig = await db.getBotConfig();
     const keyToUse = apiKey || currentConfig.GEMINI_API_KEY;
     const modelToUse = model || currentConfig.AI_MODEL || 'gemini-3.5-flash-lite';
-    const promptToUse = systemPrompt || currentConfig.AI_SYSTEM_PROMPT || 'You are the official Academic Counselor for Helix BioFast Labs Pvt. Ltd.';
+    const promptToUse = systemPrompt || currentConfig.AI_SYSTEM_PROMPT || 'You are the official Academic Counselor for Biofast Laboratories (formerly Helix BioGenesis).';
     const userMsg = testMessage || 'Hello, what courses do you offer for 15 days?';
 
     if (!keyToUse) {
@@ -2347,7 +2395,7 @@ app.post('/api/drip/test-send', async (req, res) => {
     const templates = await db.getDripTemplates('inquiry');
     const template = templates.find(t => t.day_number === 1) || {
       title: 'Day 1 Training Overview',
-      message: 'Hello {name},\n\nThank you for reaching out to Helix BioFast Labs regarding our training programs. We offer comprehensive hands-on modules in Molecular Biology, Genetic Engineering, Tissue Culture, and Medical Biotechnology.\n\nCould you share which area or duration you are most interested in?\n\nHelix BioFast Labs\nwww.helixbiofastlabs.com'
+      message: 'Hello {name},\n\nThank you for reaching out to Biofast Laboratories (formerly Helix BioGenesis) regarding our training programs. We offer comprehensive hands-on modules in Molecular Biology, Genetic Engineering, Tissue Culture, and Medical Biotechnology.\n\nCould you share which area or duration you are most interested in?\n\nBiofast Laboratories (formerly Helix BioGenesis)\nwww.helixbiofastlabs.com'
     };
 
     const dummySub = { name: 'Candidate', category: 'General Inquiry' };
@@ -2357,11 +2405,11 @@ app.post('/api/drip/test-send', async (req, res) => {
     console.log(`📤 [TEST DRIP] Dispatching guaranteed Day 1 drip test message to ${targetChatId}...`);
     await sendDripWithButtons(sock, targetChatId, messageText);
 
-    await db.logMessage(targetChatId, 'Helix Bot', 'bot', messageText);
+    await db.logMessage(targetChatId, 'Biofast Bot', 'bot', messageText);
     await db.upsertChat(targetChatId, 'Candidate', cleanPhone, messageText, false);
     io.emit('new-message', {
       chat_id: targetChatId,
-      sender_name: 'Helix Bot',
+      sender_name: 'Biofast Bot',
       sender_type: 'bot',
       text: messageText,
       timestamp: new Date().toISOString()
@@ -2409,7 +2457,7 @@ app.post('/api/drip/subscribers/:id/send-now', async (req, res) => {
     console.log(`📤 [SEND NOW] Sending Day ${nextStep} to ${targetChatId} (${sub.name}) with interactive buttons...`);
     await sendDripWithButtons(sock, targetChatId, messageText);
 
-    await db.logMessage(targetChatId, 'Helix Bot', 'bot', messageText);
+    await db.logMessage(targetChatId, 'Biofast Bot', 'bot', messageText);
     await db.upsertChat(targetChatId, sub.name, cleanPhone, messageText, false);
     await db.logDripMessage(sub.id, targetChatId, sub.name, cleanPhone, sub.campaign_type, nextStep, messageText, 'sent');
 
@@ -2418,7 +2466,7 @@ app.post('/api/drip/subscribers/:id/send-now', async (req, res) => {
 
     io.emit('new-message', {
       chat_id: targetChatId,
-      sender_name: 'Helix Bot',
+      sender_name: 'Biofast Bot',
       sender_type: 'bot',
       text: messageText,
       timestamp: new Date().toISOString()
@@ -2685,7 +2733,7 @@ async function dispatchCustomCampaign(campaignId, title, message, attachment, re
       sentCount++;
       await db.logCampaignRecipient(campaignId, cleanPhone, studentName, 'sent', null);
       const attachLabel = attachment ? ` [Attachment: ${attachment.fileName || attachment.name || 'file'}]` : '';
-      await db.logMessage(targetChatId, 'Helix Broadcast', 'bot', personalizedMsg + attachLabel);
+      await db.logMessage(targetChatId, 'Biofast Broadcast', 'bot', personalizedMsg + attachLabel);
       await db.upsertChat(targetChatId, studentName, cleanPhone, personalizedMsg, false);
       console.log(`✅ [CAMPAIGN #${campaignId}] Sent to ${studentName} (${cleanPhone}) [${i + 1}/${recipients.length}]`);
     } catch (sendErr) {
@@ -3055,7 +3103,7 @@ app.post('/api/institutions/:id/send-proposal', async (req, res) => {
 
     const proposalMsg =
       `Dear ${inst.contact_person || 'Faculty Coordinator'},\n\n` +
-      `Thank you for connecting with Helix BioFast Labs Pvt. Ltd., Noida regarding practical biotechnology training and workshop collaboration for students at ${inst.college_name || 'your institution'}.\n\n` +
+      `Thank you for connecting with Biofast Laboratories (formerly Helix BioGenesis), Noida regarding practical biotechnology training and workshop collaboration for students at ${inst.college_name || 'your institution'}.\n\n` +
       `We specialize in faculty-student hands-on laboratory workshops, value-added skill courses, and MoU-based academic partnerships covering:\n` +
       `• Molecular Biology & PCR Diagnostics\n` +
       `• Industrial Microbiology & GLP Compliance\n` +
@@ -3066,10 +3114,10 @@ app.post('/api/institutions/:id/send-proposal', async (req, res) => {
       `https://www.helixbiofastlabs.com\n\n` +
       `📞 Academic Coordinator: +91 8383897225\n` +
       `📧 biofastlabs@gmail.com\n\n` +
-      `Helix BioFast Labs Pvt. Ltd., Noida`;
+      `Biofast Laboratories (formerly Helix BioGenesis), Noida`;
 
     await sendAndStoreMessage(sock, targetChatId, { text: proposalMsg });
-    await db.logMessage(targetChatId, 'Helix Bot', 'bot', proposalMsg);
+    await db.logMessage(targetChatId, 'Biofast Bot', 'bot', proposalMsg);
     await db.upsertChat(targetChatId, inst.contact_person, cleanPhone, proposalMsg, false);
 
     res.json({ success: true, message: 'Institutional proposal sent successfully.' });
@@ -3489,18 +3537,18 @@ app.post('/api/bot/brochure/send', async (req, res) => {
       document: buf,
       fileName: 'Helix_BioFast_Information_Brochure.pdf',
       mimetype: 'application/pdf',
-      caption: 'Helix BioFast Labs — Official Information Brochure\n\nFor technical training, skill up-gradation, building of new skills and innovative thinking in Biotechnology.\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-9717117289, +91-8383897225'
+      caption: 'Biofast Laboratories (formerly Helix BioGenesis) — Official Information Brochure\n\nFor technical training, skill up-gradation, building of new skills and innovative thinking in Biotechnology.\n\n📍 Lab Location: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8\n🌐 Website: https://www.helixbiofastlabs.com\n📞 Contact: +91-8383897225'
     });
 
     const logText = '[Sent PDF Document: Helix_BioFast_Information_Brochure.pdf]';
-    await db.logMessage(targetChatId, 'Helix Bot', 'bot', logText);
+    await db.logMessage(targetChatId, 'Biofast Bot', 'bot', logText);
     if (chatId && chatId !== targetChatId) {
-      await db.logMessage(chatId, 'Helix Bot', 'bot', logText);
+      await db.logMessage(chatId, 'Biofast Bot', 'bot', logText);
     }
 
     io.emit('new-message', {
       chat_id: chatId || targetChatId,
-      sender_name: 'Helix Bot',
+      sender_name: 'Biofast Bot',
       sender_type: 'bot',
       text: logText,
       timestamp: new Date().toISOString()
@@ -3553,7 +3601,7 @@ function startListening(port) {
   server.listen(port, '0.0.0.0', async () => {
     const ips = getNetworkIpAddresses();
     console.log(`\n============================================================`);
-    console.log(`🌐 HELIX WHATSAPP CRM DASHBOARD IS RUNNING!`);
+    console.log(`🌐 BIOFAST LABORATORIES WHATSAPP CRM DASHBOARD IS RUNNING!`);
     console.log(`💻 Local Computer:       http://localhost:${port}`);
     if (ips.length > 0) {
       console.log(`📱 Other Computers/WiFi: http://${ips[0]}:${port}`);

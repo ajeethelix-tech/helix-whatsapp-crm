@@ -305,10 +305,10 @@ async function initDb() {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
     AI_ENABLED: '1',
     AI_MODEL: 'gemini-3.5-flash-lite',
-    AI_SYSTEM_PROMPT: `You are the official Academic Counselor and Admissions Representative for Helix BioFast Labs Pvt. Ltd. (Noida / Delhi NCR, India). Website: https://www.helixbiofastlabs.com.
+    AI_SYSTEM_PROMPT: `You are the official Academic Counselor and Admissions Representative for Biofast Laboratories (formerly Helix BioGenesis) (Noida / Delhi NCR, India). Website: https://www.helixbiofastlabs.com.
 
 OFFICIAL COUNSELOR IDENTITY (STRICT MANDATE):
-- Your official designation is strictly "Academic Counselor, Helix BioFast Labs".
+- Your official designation is strictly "Academic Counselor, Biofast Laboratories (formerly Helix BioGenesis)".
 - NEVER refer to yourself as "Dr. Ravindra Kumar" or any individual candidate or doctor name. You speak officially on behalf of the institution.
 - You are answering queries from prospective students, research scholars, and candidates.
 
@@ -323,10 +323,10 @@ CRITICAL FORMATTING & STYLE RULES:
 - STEP 1 (Initial Inquiry): If someone asks about a job, vacancy, or hiring (e.g., "Sir koi vacancy hai kya lab mai", "Any job opening?", "Job chahiye"):
   Do NOT explain any courses or training programs yet, and do NOT ask for a CV yet.
   ONLY ask this simple question:
-  "Hello. Thank you for reaching out to Helix BioFast Labs. Could you please let us know whether you are a fresher or do you have prior lab experience?"
+  "Hello. Thank you for reaching out to Biofast Laboratories (formerly Helix BioGenesis). Could you please let us know whether you are a fresher or do you have prior lab experience?"
 - STEP 2 (Follow-up):
   * If the candidate replies that they are a FRESHER:
-    Explain that Helix BioFast Labs offers an industry-oriented Job-Oriented Training Program designed to provide 100% hands-on lab skill training, industrial SOP/GLP exposure, and placement assistance to help freshers enter the industry.
+    Explain that Biofast Laboratories (formerly Helix BioGenesis) offers an industry-oriented Job-Oriented Training Program designed to provide 100% hands-on lab skill training, industrial SOP/GLP exposure, and placement assistance to help freshers enter the industry.
     Share the link: https://www.helixbiofastlabs.com/job-oriented-training
     And ask them for their educational qualification (e.g., B.Sc, M.Sc, B.Tech).
   * If the candidate replies that they are EXPERIENCED:
@@ -339,7 +339,7 @@ CRITICAL FORMATTING & STYLE RULES:
 - Direct the student to the relevant official website page where the detailed fee structure is published.
 
 3. 1-MONTH (30-DAY) TRAINING INQUIRIES (CRITICAL RULE):
-- ONLY if the student explicitly asks for "1 month", "one month", or "30 days" training or fee, explain that Helix BioFast Labs offers 3 distinct options for a 1-month duration:
+- ONLY if the student explicitly asks for "1 month", "one month", or "30 days" training or fee, explain that Biofast Laboratories (formerly Helix BioGenesis) offers 3 distinct options for a 1-month duration:
   1. Option 1: 4 Modules of 7 Days (Short Term Training) - allows mastering 4 different specialized lab techniques.
      Fee and details link: https://www.helixbiofastlabs.com/short-term-biotechnology-training
   2. Option 2: 2 Modules of 15 Days (Advance Training Program) - deeper practical lab protocols and instrumentation across 2 subjects.
@@ -367,14 +367,14 @@ CRITICAL FORMATTING & STYLE RULES:
   Link: https://www.helixbiofastlabs.com/project-dissertation-training-in-biotechnology
 
 5. CONTACT & LOCATION (STRICT):
-- Laboratory Address: Helix BioFast Labs Pvt. Ltd., A-52, First Floor, Sector-2, Noida, G.B. Nagar, Uttar Pradesh - 201301 (Near Sector-15 Metro Station).
+- Laboratory Address: Biofast Laboratories (formerly Helix BioGenesis), A-52, First Floor, Sector-2, Noida, G.B. Nagar, Uttar Pradesh - 201301 (Near Sector-15 Metro Station).
 - Google Maps Location Link: https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8
-- WhatsApp / Phone: +91-9717117289, +91-8383897225
+- WhatsApp / Phone: +91-8383897225
 - Email: biofastlabs@gmail.com
 - Website: https://www.helixbiofastlabs.com
-- When anyone asks for location, address, where is the lab, how to reach, or Google Maps: ALWAYS provide the complete address, the exact Google Maps link (https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8), and phone numbers.
+- When anyone asks for location, address, where is the lab, how to reach, or Google Maps: ALWAYS provide the complete address, the exact Google Maps link (https://maps.app.goo.gl/M9BGxKCjPn4PDVrU8), and phone number.
 - When anyone asks for brochure, information brochure, or PDF: Inform them that the official Information Brochure PDF is available, and provide the website link https://www.helixbiofastlabs.com.`,
-    mainMenu: `Hello! 👋 Thank you for contacting Helix BioFast Labs Pvt. Ltd., Noida.
+    mainMenu: `Hello! 👋 Thank you for contacting Biofast Laboratories (formerly Helix BioGenesis), Noida.
 
 I can instantly help you with our training programs, fees, and services.
 
@@ -408,13 +408,13 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
         type: 'inquiry',
         day: 1,
         title: 'Welcome & Program Overview',
-        message: 'Hello {name}, thank you for contacting Helix BioFast Labs regarding our biotechnology and life sciences training programs.\n\nHave you had a chance to decide on your preferred subject or duration? Whether you are looking for short-term technique mastery, industrial internship, or dissertation bench work, we provide 100% hands-on laboratory experience.\n\nYou can review our program options here:\nhttps://www.helixbiofastlabs.com\n\nPlease let us know your educational background so our academic counselor can assist you with the syllabus.'
+        message: 'Hello {name}, thank you for contacting Biofast Laboratories (formerly Helix BioGenesis) regarding our biotechnology and life sciences training programs.\n\nHave you had a chance to decide on your preferred subject or duration? Whether you are looking for short-term technique mastery, industrial internship, or dissertation bench work, we provide 100% hands-on laboratory experience.\n\nYou can review our program options here:\nhttps://www.helixbiofastlabs.com\n\nPlease let us know your educational background so our academic counselor can assist you with the syllabus.'
       },
       {
         type: 'inquiry',
         day: 2,
         title: 'Hands-On Wet Lab Infrastructure',
-        message: 'Hello {name}, at Helix BioFast Labs, we believe that true scientific learning happens at the laboratory bench.\n\nEvery student receives dedicated hands-on access to modern equipment, including Thermal Cyclers (PCR), Gel Electrophoresis, Autoclaves, Laminar Air Flow hoods, and UV-Vis Spectrophotometers.\n\nWould you like to know more about the practical protocols covered in your chosen domain? Reply to this message and we will share the details.'
+        message: 'Hello {name}, at Biofast Laboratories (formerly Helix BioGenesis), we believe that true scientific learning happens at the laboratory bench.\n\nEvery student receives dedicated hands-on access to modern equipment, including Thermal Cyclers (PCR), Gel Electrophoresis, Autoclaves, Laminar Air Flow hoods, and UV-Vis Spectrophotometers.\n\nWould you like to know more about the practical protocols covered in your chosen domain? Reply to this message and we will share the details.'
       },
       {
         type: 'inquiry',
@@ -426,7 +426,7 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
         type: 'inquiry',
         day: 4,
         title: 'Certification & Career Guidance',
-        message: 'Hello {name}, upon successful completion of your training at Helix BioFast Labs, you will receive an industry-recognized Certificate of Practical Training.\n\nWe also assist students with resume enhancement, project report compilation, and interview preparation for research and industrial roles in biotechnology and pharma.\n\nFeel free to ask any questions regarding certification or project assistance.'
+        message: 'Hello {name}, upon successful completion of your training at Biofast Laboratories (formerly Helix BioGenesis), you will receive an industry-recognized Certificate of Practical Training.\n\nWe also assist students with resume enhancement, project report compilation, and interview preparation for research and industrial roles in biotechnology and pharma.\n\nFeel free to ask any questions regarding certification or project assistance.'
       },
       {
         type: 'inquiry',
@@ -446,13 +446,13 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
         type: 'lab_visit',
         day: 1,
         title: 'Thank You for Visiting Our Laboratory',
-        message: 'Hello {name}, thank you for visiting Helix BioFast Labs today. It was a pleasure meeting you in person and showing you our laboratory infrastructure.\n\nWe hope you gained a clear view of our hands-on wet lab facilities and scientific training programs.\n\nIf you have any questions regarding the modules or batches we discussed during your visit, please feel free to ask us here.'
+        message: 'Hello {name}, thank you for visiting Biofast Laboratories (formerly Helix BioGenesis) today. It was a pleasure meeting you in person and showing you our laboratory infrastructure.\n\nWe hope you gained a clear view of our hands-on wet lab facilities and scientific training programs.\n\nIf you have any questions regarding the modules or batches we discussed during your visit, please feel free to ask us here.'
       },
       {
         type: 'lab_visit',
         day: 2,
         title: 'Follow-up on Your Lab Visit & Program Selection',
-        message: 'Hello {name}, following up on your visit to Helix BioFast Labs, have you finalized your preferred program (Short Term, Advance, Industrial, or Dissertation)?\n\nTo review detailed module structures and fees, you can check our official portal:\nhttps://www.helixbiofastlabs.com\n\nPlease let us know if you would like us to reserve a seat in your preferred batch.'
+        message: 'Hello {name}, following up on your visit to Biofast Laboratories (formerly Helix BioGenesis), have you finalized your preferred program (Short Term, Advance, Industrial, or Dissertation)?\n\nTo review detailed module structures and fees, you can check our official portal:\nhttps://www.helixbiofastlabs.com\n\nPlease let us know if you would like us to reserve a seat in your preferred batch.'
       },
       {
         type: 'lab_visit',
@@ -470,12 +470,12 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
         type: 'lab_visit',
         day: 5,
         title: 'Registration & Admission Assistance',
-        message: 'Hello {name}, we would be glad to assist you in completing your admission process for Helix BioFast Labs.\n\nYou can complete your registration or speak with our coordinator at +91 8383897225. We look forward to welcoming you to the lab.'
+        message: 'Hello {name}, we would be glad to assist you in completing your admission process for Biofast Laboratories (formerly Helix BioGenesis).\n\nYou can complete your registration or speak with our coordinator at +91 8383897225. We look forward to welcoming you to the lab.'
       },
       {
         type: 'lab_visit',
         day: 6,
-        title: 'Final Follow-up from Helix BioFast Labs',
+        title: 'Final Follow-up from Biofast Laboratories',
         message: 'Hello {name}, this is a final follow-up regarding your laboratory visit. If you need any flexibility in batch timings or have additional questions for our scientists, we are here to help.\n\nHelpline: +91 8383897225\nWebsite: https://www.helixbiofastlabs.com'
       }
     ];
@@ -496,8 +496,8 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
       {
         type: 'call_inquiry',
         day: 1,
-        title: 'Thank You for Calling Helix BioFast Labs',
-        message: 'Hello {name}, thank you for speaking with our academic counselor on call today regarding our biotechnology and life sciences training programs at Helix BioFast Labs.\n\nAs discussed over the call, we provide 100% hands-on laboratory practical experience on real bench instruments.\n\nYou can review our program details and syllabus options here:\nhttps://www.helixbiofastlabs.com\n\nFeel free to reply if you need any assistance with course modules or batch schedules.'
+        title: 'Thank You for Calling Biofast Laboratories',
+        message: 'Hello {name}, thank you for speaking with our academic counselor on call today regarding our biotechnology and life sciences training programs at Biofast Laboratories (formerly Helix BioGenesis).\n\nAs discussed over the call, we provide 100% hands-on laboratory practical experience on real bench instruments.\n\nYou can review our program details and syllabus options here:\nhttps://www.helixbiofastlabs.com\n\nFeel free to reply if you need any assistance with course modules or batch schedules.'
       },
       {
         type: 'call_inquiry',
@@ -515,7 +515,7 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
         type: 'call_inquiry',
         day: 4,
         title: 'Certification & Career Guidance',
-        message: 'Hello {name}, upon completing your training at Helix BioFast Labs, you will receive an industry-recognized Certificate of Practical Training, along with project report assistance and interview guidance for biotech & pharma roles.'
+        message: 'Hello {name}, upon completing your training at Biofast Laboratories (formerly Helix BioGenesis), you will receive an industry-recognized Certificate of Practical Training, along with project report assistance and interview guidance for biotech & pharma roles.'
       },
       {
         type: 'call_inquiry',
@@ -526,8 +526,8 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
       {
         type: 'call_inquiry',
         day: 6,
-        title: 'Final Follow-up from Helix BioFast Labs',
-        message: 'Hello {name}, this is a gentle follow-up regarding our call discussion about Helix BioFast Labs training. If you would like to confirm your registration or schedule an in-person visit to our facility before joining, please let us know today.\n\nWebsite: https://www.helixbiofastlabs.com\nHelpline: +91 8383897225'
+        title: 'Final Follow-up from Biofast Laboratories',
+        message: 'Hello {name}, this is a gentle follow-up regarding our call discussion about Biofast Laboratories (formerly Helix BioGenesis) training. If you would like to confirm your registration or schedule an in-person visit to our facility before joining, please let us know today.\n\nWebsite: https://www.helixbiofastlabs.com\nHelpline: +91 8383897225'
       }
     ];
 
@@ -538,6 +538,23 @@ Reply with a number (1-6) or type your question in plain English or Hindi.`
       );
     }
     console.log('✅ Default 6-day call inquiry drip templates seeded successfully.');
+  }
+
+  // Auto-migration: Ensure company name & sole contact phone 8383897225 are updated across all database records
+  try {
+    await run(`UPDATE bot_config SET value = REPLACE(value, 'Helix BioFast Labs Pvt. Ltd.', 'Biofast Laboratories (formerly Helix BioGenesis)') WHERE key IN ('AI_SYSTEM_PROMPT', 'mainMenu')`);
+    await run(`UPDATE bot_config SET value = REPLACE(value, 'Helix BioFast Labs', 'Biofast Laboratories (formerly Helix BioGenesis)') WHERE key IN ('AI_SYSTEM_PROMPT', 'mainMenu')`);
+    await run(`UPDATE bot_config SET value = REPLACE(value, 'Helix BioFast', 'Biofast Laboratories (formerly Helix BioGenesis)') WHERE key IN ('AI_SYSTEM_PROMPT', 'mainMenu')`);
+    await run(`UPDATE bot_config SET value = REPLACE(value, '+91-9717117289, +91-8383897225', '+91-8383897225') WHERE key = 'AI_SYSTEM_PROMPT'`);
+    await run(`UPDATE bot_config SET value = REPLACE(value, '+91-9717117289', '+91-8383897225') WHERE key = 'AI_SYSTEM_PROMPT'`);
+    await run(`UPDATE bot_config SET value = REPLACE(value, '9717117289', '8383897225') WHERE key = 'AI_SYSTEM_PROMPT'`);
+
+    await run(`UPDATE drip_templates SET message = REPLACE(message, 'Helix BioFast Labs', 'Biofast Laboratories (formerly Helix BioGenesis)') WHERE message LIKE '%Helix BioFast Labs%'`);
+    await run(`UPDATE drip_templates SET message = REPLACE(message, 'Helix BioFast', 'Biofast Laboratories (formerly Helix BioGenesis)') WHERE message LIKE '%Helix BioFast%'`);
+    await run(`UPDATE drip_templates SET title = REPLACE(title, 'Helix BioFast Labs', 'Biofast Laboratories') WHERE title LIKE '%Helix BioFast Labs%'`);
+    await run(`UPDATE drip_templates SET title = REPLACE(title, 'Helix BioFast', 'Biofast Laboratories') WHERE title LIKE '%Helix BioFast%'`);
+  } catch (migErr) {
+    console.warn('Auto-migration note in initDb:', migErr.message);
   }
 
   console.log('✅ SQLite database schema initialized successfully.');
@@ -1228,6 +1245,96 @@ async function stopDripForChat(chatId) {
   );
 }
 
+// Permanently purge a chat, all messages, lead record, drip campaigns, and contact history from system
+async function purgeChatCompletely(chatId) {
+  if (!chatId) throw new Error('Chat ID is required for deletion');
+
+  const cleanPhone = normalizeIndianPhone(chatId);
+  const barePhone = cleanPhone ? cleanPhone.replace(/[^0-9]/g, '') : '';
+  const normalizedChatId = cleanPhone.includes('@') ? cleanPhone : cleanPhone + '@s.whatsapp.net';
+  const originalChatId = String(chatId).trim();
+
+  console.log(`🗑️ [PURGE ALL DATA] Permanently wiping chat & all records for: ${originalChatId} (phone: ${barePhone})`);
+
+  // 1. Delete all messages from messages table
+  await run(
+    `DELETE FROM messages 
+     WHERE chat_id = ? OR chat_id = ? OR chat_id = ? 
+        OR (? != '' AND (chat_id LIKE ? OR chat_id LIKE ?))`,
+    [originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}@%`]
+  );
+
+  // 2. Delete Baileys cached messages
+  await run(
+    `DELETE FROM baileys_store 
+     WHERE remote_jid = ? OR remote_jid = ? 
+        OR (? != '' AND remote_jid LIKE ?)`,
+    [originalChatId, normalizedChatId, barePhone, `%${barePhone}%`]
+  );
+
+  // 3. Delete from drip_logs
+  await run(
+    `DELETE FROM drip_logs 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? 
+        OR (? != '' AND (chat_id LIKE ? OR phone LIKE ?))
+        OR subscriber_id IN (
+          SELECT id FROM drip_subscribers 
+          WHERE chat_id = ? OR chat_id = ? OR phone = ? OR (? != '' AND (chat_id LIKE ? OR phone LIKE ?))
+        )`,
+    [
+      originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}%`,
+      originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}%`
+    ]
+  );
+
+  // 4. Delete from drip_subscribers permanently so NO drip message can ever be sent
+  await run(
+    `DELETE FROM drip_subscribers 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? 
+        OR (? != '' AND (chat_id LIKE ? OR phone LIKE ?))`,
+    [originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}%`]
+  );
+
+  // 5. Delete from leads table
+  await run(
+    `DELETE FROM leads 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? 
+        OR (? != '' AND (chat_id LIKE ? OR phone LIKE ?))`,
+    [originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}%`]
+  );
+
+  // 6. Delete from chats table
+  await run(
+    `DELETE FROM chats 
+     WHERE chat_id = ? OR chat_id = ? OR phone = ? 
+        OR (? != '' AND (chat_id LIKE ? OR phone LIKE ?))`,
+    [originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}%`]
+  );
+
+  // 7. Delete from contacts table
+  await run(
+    `DELETE FROM contacts 
+     WHERE jid = ? OR jid = ? OR phone = ? 
+        OR (? != '' AND (jid LIKE ? OR phone LIKE ?))`,
+    [originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}%`]
+  );
+
+  // 8. Delete from campaign_logs
+  await run(
+    `DELETE FROM campaign_logs 
+     WHERE recipient_chat_id = ? OR recipient_chat_id = ? OR recipient_phone = ? 
+        OR (? != '' AND (recipient_chat_id LIKE ? OR recipient_phone LIKE ?))`,
+    [originalChatId, normalizedChatId, barePhone, barePhone, `%${barePhone}%`, `%${barePhone}%`]
+  );
+
+  return {
+    success: true,
+    deletedChatId: originalChatId,
+    normalizedChatId,
+    phone: barePhone
+  };
+}
+
 async function deleteDripSubscriber(id) {
   const sub = await get('SELECT * FROM drip_subscribers WHERE id = ?', [id]);
   if (!sub) return { changes: 0 };
@@ -1756,7 +1863,7 @@ async function getMorningDigestData() {
   const stats = await getDashboardStats();
   const dripStats = await getDripStats();
 
-  let digestText = `☀️ Helix BioFast Labs — Daily Morning Briefing\n` +
+  let digestText = `☀️ Biofast Laboratories (formerly Helix BioGenesis) — Daily Morning Briefing\n` +
     `Date: ${todayDate}\n\n` +
     `📊 CRM Pipeline Summary:\n` +
     `• Total Inquiries Received: ${stats.totalLeads}\n` +
@@ -1783,7 +1890,7 @@ async function getMorningDigestData() {
     digestText += `\n`;
   }
 
-  digestText += `Have a great and productive day!\nHelix BioFast Labs\nwww.helixbiofastlabs.com`;
+  digestText += `Have a great and productive day!\nBiofast Laboratories (formerly Helix BioGenesis)\nwww.helixbiofastlabs.com`;
   return digestText;
 }
 
@@ -2213,5 +2320,6 @@ module.exports = {
   markDripOptOut,
   markDripOptIn,
   getDripConsentData,
-  exportConsentToCsv
+  exportConsentToCsv,
+  purgeChatCompletely
 };

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Helix BioFast Labs — WhatsApp CRM Dashboard</title>
+  <title>Biofast Laboratories (formerly Helix BioGenesis) — WhatsApp CRM</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css?v=4.0">
 </head>
@@ -15,8 +15,8 @@
         <div class="logo">
           <i class="fa-solid fa-dna logo-icon"></i>
           <div>
-            <h2>Helix BioFast</h2>
-            <span class="sub-text">WhatsApp CRM v3.0</span>
+            <h2>Biofast Laboratories</h2>
+            <span class="sub-text">(formerly Helix BioGenesis) • CRM v3.0</span>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@
         </div>
         <div class="navbar-actions">
           <div class="clinical-counselor-badge">
-            <i class="fa-solid fa-user-doctor" style="color:#0284c7;"></i> Official Counselor: Academic Counselor, Helix BioFast Labs
+            <i class="fa-solid fa-user-doctor" style="color:#0284c7;"></i> Official Counselor: Academic Counselor, Biofast Laboratories (formerly Helix BioGenesis)
           </div>
           <button type="button" class="btn btn-danger" id="btnNavbarStopBroadcast" style="display:none; background:#DC2626; color:#fff; font-weight:700; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(220,38,38,0.35);">
             <i class="fa-solid fa-octagon-xmark"></i> Stop Running Broadcast
@@ -349,7 +349,7 @@
           <div class="chat-window-panel">
             <div id="noChatSelected" class="chat-empty-view">
               <i class="fa-brands fa-whatsapp whatsapp-icon"></i>
-              <h3>Helix BioFast Live Chat Desk</h3>
+              <h3>Biofast Laboratories Live Chat Desk</h3>
               <p>Select a candidate from the left thread list to view conversation and reply directly.</p>
             </div>
 
@@ -370,7 +370,7 @@
                   </div>
                 </div>
 
-                <div class="chat-header-actions" style="display:flex; align-items:center; gap:12px;">
+                <div class="chat-header-actions" style="display:flex; align-items:center; gap:10px;">
                   <button type="button" class="btn btn-secondary btn-sm" id="btnSendChatBrochure" title="Send official Information Brochure PDF to this student">
                     <i class="fa-solid fa-file-pdf" style="color:#EF4444;"></i> Send Brochure
                   </button>
@@ -379,6 +379,9 @@
                     <span class="slider"></span>
                   </label>
                   <span class="toggle-label" id="autoReplyLabel">Auto-Reply Bot</span>
+                  <button type="button" class="btn btn-sm" id="btnDeleteSelectedChat" title="Permanently delete this chat, all messages, lead record, and stop all drip messages" style="background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5; padding:6px 12px; font-weight:600; border-radius:6px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="deleteCurrentActiveChat()">
+                    <i class="fa-solid fa-trash-can"></i> Delete Chat
+                  </button>
                 </div>
               </div>
 
@@ -621,7 +624,7 @@
                   <span class="badge" id="badgeLabVisitTotal" style="background: #059669; color: #fff; font-size: 11px;">0 Students</span>
                 </h4>
                 <p style="margin: 4px 0 0 0; font-size: 12px; color: #15803D;">
-                  All direct walk-in candidates who visited Helix BioFast Labs. Export their contact numbers to Excel or launch custom campaigns.
+                  All direct walk-in candidates who visited Biofast Laboratories (formerly Helix BioGenesis). Export their contact numbers to Excel or launch custom campaigns.
                 </p>
               </div>
               <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -1215,7 +1218,7 @@
                       <i class="fa-solid fa-vial-virus" style="color: #059669; margin-right: 6px;"></i> Target Lab Visited Students
                     </h4>
                     <p style="margin: 4px 0 0 0; font-size: 12px; color: #15803D;">
-                      All direct walk-in candidates who visited Helix BioFast Labs are pre-selected for this broadcast.
+                      All direct walk-in candidates who visited Biofast Laboratories (formerly Helix BioGenesis) are pre-selected for this broadcast.
                     </p>
                   </div>
                   <button type="button" class="btn btn-secondary btn-sm" id="btnExportLabVisitsFromCampaign" style="background:#fff; color:#107C41; border:1px solid #107C41; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
@@ -1325,7 +1328,7 @@
                     <button type="button" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 12px;" onclick="insertMessagePlaceholder('{name}')" title="Insert candidate name placeholder">+ {name}</button>
                   </div>
                 </div>
-                <textarea id="campaignMessage" rows="6" placeholder="Write your broadcast announcement...&#10;&#10;e.g.&#10;Hi {name}, your registration has been successfully confirmed!&#10;We are delighted to welcome you to Helix BioFast Labs." required></textarea>
+                <textarea id="campaignMessage" rows="6" placeholder="Write your broadcast announcement...&#10;&#10;e.g.&#10;Hi {name}, your registration has been successfully confirmed!&#10;We are delighted to welcome you to Biofast Laboratories (formerly Helix BioGenesis)." required></textarea>
                 <small id="campaignPlaceholderHelp">Placeholder: <code>{name}</code> is automatically replaced with each student's name from your Excel sheet or contacts list. Any other column from your Excel sheet can also be inserted as <code>{column_name}</code>.</small>
               </div>
 
@@ -2715,9 +2718,9 @@
           <div style="background:#FFFFFF; border-radius:8px; padding:14px 16px; box-shadow:0 1px 2px rgba(0,0,0,0.1); max-width:94%; margin-left:auto; font-size:13px; line-height:1.5; color:#111B21;">
             <div style="font-weight:600; color:#0f172a; margin-bottom:6px;">Hello <span id="previewDripStudentName">Ajeet Singh</span>,</div>
             <div style="color:#334155; margin-bottom:10px;">
-              Thank you for reaching out to Helix BioFast Labs regarding our training programs. We offer comprehensive hands-on modules in Molecular Biology, Genetic Engineering, Tissue Culture, and Medical Biotechnology.<br><br>
+              Thank you for reaching out to Biofast Laboratories (formerly Helix BioGenesis) regarding our training programs. We offer comprehensive hands-on modules in Molecular Biology, Genetic Engineering, Tissue Culture, and Medical Biotechnology.<br><br>
               Could you share which area or duration you are most interested in?<br><br>
-              Helix BioFast Labs<br>
+              Biofast Laboratories (formerly Helix BioGenesis)<br>
               www.helixbiofastlabs.com
             </div>
             
